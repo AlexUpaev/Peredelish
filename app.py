@@ -1,9 +1,8 @@
-#hzcbsdnziuzjn
 import base64
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy  # type: ignore
-from flask_login import LoginManager, login_user, login_required
+from flask_login import LoginManager, login_user, login_required, UserMixin
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,17 +11,18 @@ app.secret_key = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+login_manager = LoginManager(app)
 
 # Модель пользователя
-class Us_user(db.Model):
+class Us_user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     N_name = db.Column(db.String(20), nullable=False)
     Surname = db.Column(db.String(20), nullable=False)
-    Email = db.Column(db.String(50), unique=True, nullable=False)
+    Email = db.Column(db.String(70), nullable=False, unique=True)
     Password = db.Column(db.String(128), nullable=False)
     Role = db.Column(db.String(20), nullable=False)
 
-# Модель заявки
+# Модель пропавшего
 class Midding(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Photo = db.Column(db.Text, nullable=False)
@@ -35,9 +35,9 @@ class Midding(db.Model):
     DataOfLastAppearance = db.Column(db.Date, nullable=False)
     PlaceOfLastAppearance = db.Column(db.String(50), nullable=False)
 
-# Настройка Flask-Login
-# Настройка Flask-Login
-login_manager = LoginManager(app)
+# Инициализация базы данных
+with app.app_context():
+    db.create_all()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -46,86 +46,74 @@ def load_user(user_id):
 # Вход в систему
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        email = request.form.get('email')  # Получаем email
-        password = request.form.get('password')  # Получаем пароль
+    email = request.form.get('Email')
+    password = request.form.get('Password')
 
-        # Логирование для отладки
-        print(f"Email: {email}")  # Для отладки
-        print(f"Password: {password}")  # Для отладки
-
-        # Проверяем, что email и пароль не пустые
-        if not email or not password:
-            flash('Email и пароль обязательны.', 'danger')
-            return render_template('login.html')
-
-        # Поиск пользователя по email в базе данных
+    if email and password:
         user = Us_user.query.filter_by(Email=email).first()
 
-        # Проверка наличия пользователя и правильности пароля
-        if user and check_password_hash(user.Password, password):  # Проверяем пароль
-            login_user(user)  # Вход в систему
-            flash('Успешный вход!', 'success')  # Успешное сообщение
-            return redirect(url_for('index'))  # Перенаправление на главную страницу
-        
-        flash('Неверный email или пароль.', 'danger')
+        if user and check_password_hash(user.Password, password):
+            login_user(user)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Неверный логин или пароль', 'danger')
+    else:
+        flash('Введите логин и пароль', 'danger')
 
     return render_template('login.html')
-
 
 # Регистрация нового пользователя
 @app.route("/register", methods=['POST', 'GET'])
 def register():
+    email = request.form.get('Email')
+    password = request.form.get('Password')
+    password2 = request.form.get('Password2')
+
     if request.method == 'POST':
-        email = request.form['Email']
-        password = request.form['Password']
-        confirm_password = request.form['confirm_password']
-        
-        if password != confirm_password:
-            flash('Пароли не совпадают. Пожалуйста, попробуйте снова.', 'danger')
-            return render_template('register.html', 
-                                   name=request.form['N_name'], 
-                                   surname=request.form['Surname'],
-                                   email=email, role=request.form['Role'])
-        
-        existing_user = Us_user.query.filter_by(Email=email).first()
-        if existing_user:
-            flash('Аккаунт с данным email уже зарегистрирован.', 'danger')
-            return render_template('register.html', 
-                                   name=request.form['N_name'], 
-                                   surname=request.form['Surname'],
-                                   email=email, role=request.form['Role'])
-
-        try:
-            name = request.form['N_name']
-            surname = request.form['Surname']
-            role = request.form['Role']
-            hashed_password = generate_password_hash(password)
-
+        # Проверка на пустые поля
+        if not (email and password and password2):
+            flash('Введите логин и пароль', 'danger')
+        # Проверка на совпадение паролей
+        elif password != password2:
+            flash('Пароли не совпадают', 'danger')
+        # Проверка, существует ли email в базе данных
+        elif Us_user.query.filter_by(Email=email).first():
+            flash('Пользователь с таким email уже существует', 'danger')
+        else:
+            # Хеширование пароля
+            hash_pwd = generate_password_hash(password, method='pbkdf2:sha256')
             new_user = Us_user(
-                N_name=name,
-                Surname=surname,
+                N_name=request.form['N_name'],
+                Surname=request.form['Surname'],
                 Email=email,
-                Password=hashed_password,
-                Role=role
+                Password=hash_pwd,
+                Role=request.form['Role']
             )
-
+            # Добавление пользователя в базу данных
             db.session.add(new_user)
             db.session.commit()
             flash('Регистрация прошла успешно!', 'success')
-            return redirect('/')
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Ошибка при регистрации: {str(e)}', 'danger')
-            return render_template('register.html', 
-                                   name=request.form['N_name'], 
-                                   surname=request.form['Surname'],
-                                   email=email, role=request.form['Role'])
-    else:
-        return render_template('register.html')
+            return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+
+# Главная страница
+@app.route("/index")
+@app.route("/") 
+def index():
+    return render_template("index.html")
+
+# Список заявок
+@app.route("/spisock")
+def spisock():
+    posts = Midding.query.all()
+    return render_template('spisock.html', posts=posts)
 
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
+@login_required
 def zayavka():
     if request.method == 'POST':
         try:
@@ -164,18 +152,13 @@ def zayavka():
             return redirect('/zayavka')
     else:
         return render_template('zayavka.html')
-
-# Главная страница
-@app.route("/index")
-@app.route("/") 
-def index():
-    return render_template("index.html")
-
-# Список заявок
-@app.route("/spisock")
-def spisock():
-    posts = Midding.query.all()
-    return render_template('spisock.html', posts=posts)
+ 
+@app.after_request
+def redirect_to_signin(response):
+    if response.status_code == 401:
+        return redirect(url_for('login', next=request.url))
+    
+    return response
 
 if __name__ == "__main__":
     with app.app_context():

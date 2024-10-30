@@ -38,14 +38,14 @@
                 <input type="password" name="Password" id="Password" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label for="confirm_password" class="form-label">Подтвердите пароль</label>
-                <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                <label for="Password2" class="form-label">Подтвердите пароль</label>
+                <input type="password" name="Password2" id="Password2" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label for="Role" class="form-label">Роль</label>
                 <select name="Role" id="Role" class="form-control" required>
-                    <option value="Пользователь" {% if role == 'Пользователь' %}selected{% endif %}>Пользователь</option>
-                    <option value="Волонтёр" {% if role == 'Волонтёр' %}selected{% endif %}>Волонтёр</option>
+                    <option value="Пользователь" {% if role and role == 'Пользователь' %}selected{% endif %}>Пользователь</option>
+                    <option value="Волонтёр" {% if role and role == 'Волонтёр' %}selected{% endif %}>Волонтёр</option>
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
