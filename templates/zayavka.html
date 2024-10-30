@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Подача заявки
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center;">
+    <h1 style="text-align: center; border: 1px solid black; padding: 10px; border-radius: 10px;">Подача заявки</h1>
+</div>
+<form method="post" class="form-control" enctype="multipart/form-data">
+    <label for="Photo">Фото</label>
+    <input type="file" name="Photo" id="Photo" class="form-control"><br>
+    <label for="Name">Имя</label>
+    <input type="text" name="Name" id="Name" class="form-control"><br>
+    <label for="Surname">Фамилия</label>
+    <input type="text" name="Surname" id="Surname" class="form-control"><br>
+    <label for="Patronymic">Отчество</label>
+    <input type="text" name="Patronymic" id="Patronymic" class="form-control"><br>
+    <label for="DataOfBirth">Дата рождения</label>
+    <input type="date" name="DataOfBirth" id="DataOfBirth" class="form-control"><br>
+    <label for="Gender">Пол</label>
+    <select name="Gender" id="Gender" class="form-control">
+        <option value="Мужской">Мужской</option>
+        <option value="Женский">Женский</option>
+    </select><br>
+    <label for="Description">Дополнительно описание</label>
+    <input type="text" name="Description" id="Description" class="form-control"><br>
+    <label for="DataOfLastAppearance">Дата последнего появления</label>
+    <input type="date" name="DataOfLastAppearance" id="DataOfLastAppearance" class="form-control"><br>
+    <label for="PlaceOfLastAppearance">Место последнего появления</label>
+    <input type="text" name="PlaceOfLastAppearance" id="PlaceOfLastAppearance" class="form-control"><br>
+    <button class="btn btn-success" type="submit">Отправить</button>
+</form>
+{% endblock %}
+
+
