@@ -19,7 +19,7 @@ class Us_user(db.Model, UserMixin):
     N_name = db.Column(db.String(20), nullable=False)
     Surname = db.Column(db.String(20), nullable=False)
     Email = db.Column(db.String(70), nullable=False, unique=True)
-    Password = db.Column(db.String(128), nullable=False)
+    Password = db.Column(db.String(70), nullable=False)
     Role = db.Column(db.String(20), nullable=False)
 
 # Модель пропавшего
@@ -34,6 +34,36 @@ class Midding(db.Model):
     Description = db.Column(db.Text, nullable=True)
     DataOfLastAppearance = db.Column(db.Date, nullable=False)
     PlaceOfLastAppearance = db.Column(db.String(50), nullable=False)
+
+# Модель волонтёра
+class Volunteer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Experience = db.Column(db.String(20), nullable=False)
+    ContactInformation = db.Column(db.Text, nullable=False)
+
+# Модель поиска
+class Search(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Status = db.Column(db.String(20), nullable=False)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    midding_id = db.Column(db.Integer, db.ForeignKey('midding.id'), nullable=False)
+
+# Модель заявки
+class Application(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
+    midding_id = db.Column(db.Integer, db.ForeignKey('midding.id'), nullable=False)
+
+# Модель сообщения
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Text = db.Column(db.Text, nullable=False)
+    DataOfDispatch = db.Column(db.Date, nullable=False)
+    TimeOfDispatch = db.Column(db.Time, nullable=False)
+    FromWhom = db.Column(db.String(60), nullable=False)
+    Whom = db.Column(db.String(60), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
 
 # Инициализация базы данных
 with app.app_context():
