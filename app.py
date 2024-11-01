@@ -16,11 +16,23 @@ login_manager = LoginManager(app)
 # Модель пользователя
 class Us_user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    N_name = db.Column(db.String(20), nullable=False)
-    Surname = db.Column(db.String(20), nullable=False)
-    Email = db.Column(db.String(70), nullable=False, unique=True)
-    Password = db.Column(db.String(70), nullable=False)
-    Role = db.Column(db.String(20), nullable=False)
+    N_name = db.Column(db.String(50), nullable=False)
+    Surname = db.Column(db.String(50), nullable=False)
+    Email = db.Column(db.String(100), unique=True, nullable=False)
+    Password = db.Column(db.String(100), nullable=False)
+    Role = db.Column(db.String(50), nullable=False)
+
+# Модель волонтера
+class Volunteer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Experience = db.Column(db.String(20), nullable=False)
+    ContactInformation = db.Column(db.Text, nullable=False)
+    Interactions = db.Column(db.Boolean, nullable=False, default=False) 
+    user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
+    
+    # Связь с моделью Us_user
+    user = db.relationship('Us_user', backref=db.backref('volunteers', lazy=True))
+
 
 # Модель пропавшего
 class Midding(db.Model):
@@ -34,12 +46,6 @@ class Midding(db.Model):
     Description = db.Column(db.Text, nullable=True)
     DataOfLastAppearance = db.Column(db.Date, nullable=False)
     PlaceOfLastAppearance = db.Column(db.String(50), nullable=False)
-
-# Модель волонтёра
-class Volunteer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    Experience = db.Column(db.String(20), nullable=False)
-    ContactInformation = db.Column(db.Text, nullable=False)
 
 # Модель поиска
 class Search(db.Model):
@@ -93,13 +99,12 @@ def login():
 
     return render_template('login.html')
 
-# Регистрация нового пользователя
 @app.route("/register", methods=['POST', 'GET'])
 def register():
     email = request.form.get('Email')
     password = request.form.get('Password')
     password2 = request.form.get('Password2')
-
+    
     if request.method == 'POST':
         # Проверка на пустые поля
         if not (email and password and password2):
@@ -113,20 +118,64 @@ def register():
         else:
             # Хеширование пароля
             hash_pwd = generate_password_hash(password, method='pbkdf2:sha256')
+            role = request.form.get('Role')
             new_user = Us_user(
                 N_name=request.form['N_name'],
                 Surname=request.form['Surname'],
                 Email=email,
                 Password=hash_pwd,
-                Role=request.form['Role']
+                Role=role
             )
             # Добавление пользователя в базу данных
             db.session.add(new_user)
             db.session.commit()
             flash('Регистрация прошла успешно!', 'success')
-            return redirect(url_for('login'))
+            
+            # Перенаправление на страницу в зависимости от роли
+            if role == 'Волонтёр':
+                return redirect(url_for('volunteer'))
+            else:
+                return redirect(url_for('login'))
 
     return render_template('register.html')
+
+# Маршрут для добавления волонтера
+from flask_login import current_user
+
+from flask_login import login_required, current_user
+
+@app.route("/volunteer", methods=['POST', 'GET'])
+@login_required  # Убедитесь, что пользователь вошел в систему
+def volunteer():
+    if request.method == 'POST':
+        # Получение данных из формы
+        experience = request.form.get('Experience')
+        contact_info = request.form.get('ContactInformation')
+        
+        # Проверка на заполнение обязательных полей
+        if not experience or not contact_info:
+            flash('Пожалуйста, заполните все поля', 'danger')
+        else:
+            # Создание записи о волонтере с Interactions = False
+            new_volunteer = Volunteer(
+                Experience=experience,
+                ContactInformation=contact_info,
+                Interactions=False,
+                user_id=current_user.id  # Установите user_id текущего пользователя
+            )
+            try:
+                db.session.add(new_volunteer)
+                db.session.commit()
+                flash('Данные волонтера успешно сохранены!', 'success')
+                return redirect(url_for('login'))  # Перенаправление на страницу входа
+            except Exception as e:
+                db.session.rollback()  # Откат изменений в случае ошибки
+                flash('Произошла ошибка при сохранении данных: ' + str(e), 'danger')
+
+    return render_template('volunteer.html')
+
+
+
 
 
 # Главная страница

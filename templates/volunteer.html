@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+Списки пропавших
+{% endblock %}
+
+{% block content %}
+    <h1>Регистрация Волонтера</h1>
+    <form method="POST">
+        <label for="experience">Опыт (Experience):</label>
+        <input type="text" id="experience" name="Experience" required>
+
+        <label for="contact">Контактная информация (ContactInformation):</label>
+        <textarea id="contact" name="ContactInformation" required></textarea>
+
+        <button type="submit">Сохранить</button>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+{% endblock %}
