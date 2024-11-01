@@ -13,7 +13,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
-# Модель пользователя
 class Us_user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     N_name = db.Column(db.String(50), nullable=False)
@@ -167,7 +166,7 @@ def volunteer():
                 db.session.add(new_volunteer)
                 db.session.commit()
                 flash('Данные волонтера успешно сохранены!', 'success')
-                return redirect(url_for('login'))  # Перенаправление на страницу входа
+                return redirect(url_for('index'))  # Перенаправление на страницу входа
             except Exception as e:
                 db.session.rollback()  # Откат изменений в случае ошибки
                 flash('Произошла ошибка при сохранении данных: ' + str(e), 'danger')

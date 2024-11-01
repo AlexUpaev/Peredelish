@@ -21,6 +21,14 @@
                 <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
                 <p class="card-text"><small class="text-muted">Место последнего появления: {{post.PlaceOfLastAppearance}}</small></p>
             </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Статус поиска</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="none">Никто не ищет</option>
+                    <option value="searching">Идёт поиск</option>
+                    <option value="found">Найден</option>
+                </select>
+            </div>
     </div>
 </div>
 
