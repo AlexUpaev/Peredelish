@@ -21,9 +21,11 @@
                 <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
                 <p class="card-text"><small class="text-muted">Место последнего появления: {{post.PlaceOfLastAppearance}}</small></p>
             </div>
-        </div>
     </div>
+</div>
+
 {% endfor %}
+</div>
 <div>
     <p>Ha-ha-ha</p>
 </div>
