@@ -194,6 +194,29 @@ def spisock():
     posts = Midding.query.all()
     return render_template('spisock.html', posts=posts)
 
+
+@app.route("/update_status/<int:post_id>", methods=['POST'])
+@login_required
+def update_status(post_id):
+    new_status = request.form.get('status')
+    print(f'Обновляем статус для поста {post_id}: {new_status}')  # Логирование нового статуса
+
+    post = Midding.query.get(post_id)
+
+    if post:
+        post.Status = new_status  # Обновляем статус
+        try:
+            db.session.commit()  # Сохраняем изменения в БД
+            flash('Статус успешно обновлён!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении статуса: {str(e)}', 'danger')
+            print(f'Ошибка базы данных: {str(e)}')  # Логирование ошибки
+    else:
+        flash('Пропавший не найден.', 'danger')
+
+    return redirect(url_for('spisock'))  # Возврат к списку пропавших
+
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
 @login_required

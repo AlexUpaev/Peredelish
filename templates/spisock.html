@@ -7,34 +7,42 @@
 {% block content %}
 <h1>Списки пропавших</h1>
 
-<div class = "cardsection">
-{% for post in posts %}
-<div class="card">
-    <div class="row g-0">
-        <div class="col">
-            <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
-        </div>
+<div class="cardsection">
+    {% for post in posts %}
+    <div class="card">
+        <div class="row g-0">
+            <div class="col">
+                <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
+            </div>
             <div class="card-body">
-                <h5 class="card-title">{{post.Name}} {{post.Surname}} {{post.Patronymic}}</h5>
-                <p class="card-text">{{post.Description}}</p>
+                <h5 class="card-title">{{ post.Name }} {{ post.Surname }} {{ post.Patronymic }}</h5>
+                <p class="card-text">{{ post.Description }}</p>
                 <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
                 <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
-                <p class="card-text"><small class="text-muted">Место последнего появления: {{post.PlaceOfLastAppearance}}</small></p>
+                <p class="card-text"><small class="text-muted">Место последнего появления: {{ post.PlaceOfLastAppearance }}</small></p>
             </div>
-            <div class="mb-3">
-                <label for="status" class="form-label">Статус поиска</label>
-                <select id="status" name="status" class="form-select">
-                    <option value="none">Никто не ищет</option>
-                    <option value="searching">Идёт поиск</option>
-                    <option value="found">Найден</option>
-                </select>
-            </div>
-    </div>
-</div>
 
-{% endfor %}
-</div>
-<div>
-    <p>Ha-ha-ha</p>
+            <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Статус поиска</label>
+                    {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' and current_user.volunteers and current_user.volunteers[0].Interactions %}
+                        <select id="status" name="status" class="form-select" onchange="this.form.submit()">
+                            <option {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                            <option {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                            <option {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
+                        </select>
+                    {% else %}
+                        <select id="status" name="status" class="form-select" disabled>
+                            <option {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                            <option {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                            <option {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
+                        </select>
+                    {% endif %}
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
