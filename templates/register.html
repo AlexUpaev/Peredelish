@@ -1,40 +1,59 @@
-{% extends "base.html" %}
-
-{% block title %}
-Регистрация
-{% endblock %}
-
-{% block content %}
-    <div class="card p-4 shadow-sm" style="width: 100%; max-width: 400px;">
-        <h2 class="text-center mb-4">Регистрация</h2>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Регистрация</h2>
+        
+        <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="mb-3">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                </div>
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <form method="POST">
+        
+        <form method="POST" action="{{ url_for('register') }}">
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="Email" id="email" class="form-control" required>
+                <label for="N_name" class="form-label">Имя</label>
+                <input type="text" class="form-control" id="N_name" name="N_name" required>
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label">Пароль</label>
-                <input type="password" name="Password" id="password" class="form-control" required>
+                <label for="Surname" class="form-label">Фамилия</label>
+                <input type="text" class="form-control" id="Surname" name="Surname" required>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+            <div class="mb-3">
+                <label for="Email" class="form-label">Электронная почта</label>
+                <input type="email" class="form-control" id="Email" name="Email" required>
+            </div>
+            <div class="mb-3">
+                <label for="Password" class="form-label">Пароль</label>
+                <input type="password" class="form-control" id="Password" name="Password" required>
+            </div>
+            <div class="mb-3">
+                <label for="Password2" class="form-label">Подтвердите пароль</label>
+                <input type="password" class="form-control" id="Password2" name="Password2" required>
+            </div>
+            <div class="mb-3">
+                <label for="Role" class="form-label">Роль</label>
+                <select class="form-select" id="Role" name="Role" required>
+                    <option value="Пользователь">Пользователь</option>
+                    <option value="Волонтёр">Волонтёр</option>
+                    <!-- Добавьте другие роли по необходимости -->
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
         </form>
-        <div class="mt-3 text-center">
-            <a href="/login" class="text-decoration-none">Уже есть аккаунт? Войдите!</a>
-        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-oBqDVmMz4fnFO9gyb7lA6q1odrA5Jw0i0Si4zPQvL8icmCS3VxdHRkO8fg9M25bY" crossorigin="anonymous"></script>
-{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

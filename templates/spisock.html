@@ -7,29 +7,27 @@
 {% block content %}
 <h1>Списки пропавших</h1>
 
-<div class = "cardsection">
+<div class = "cardsection row">
 {% for post in posts %}
 <div class="card">
-    <div class="row g-0">
-        <div class="col">
-            <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
-        </div>
-            <div class="card-body">
-                <h5 class="card-title">{{post.Name}} {{post.Surname}} {{post.Patronymic}}</h5>
-                <p class="card-text">{{post.Description}}</p>
-                <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
-                <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
-                <p class="card-text"><small class="text-muted">Место последнего появления: {{post.PlaceOfLastAppearance}}</small></p>
-            </div>
-            <div class="mb-3">
-                <label for="status" class="form-label">Статус поиска</label>
-                <select id="status" name="status" class="form-select">
-                    <option value="none">Никто не ищет</option>
-                    <option value="searching">Идёт поиск</option>
-                    <option value="found">Найден</option>
-                </select>
-            </div>
+    <div class="img_section">
+        <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
     </div>
+        <div class="card-body">
+            <h5 class="card-title">{{post.Name}} {{post.Surname}} {{post.Patronymic}}</h5>
+            <p class="card-text">{{post.Description}}</p>
+            <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
+            <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
+            <p class="card-text"><small class="text-muted">Место последнего появления: {{post.PlaceOfLastAppearance}}</small></p>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Статус поиска</label>
+            <select id="status" name="status" class="form-select">
+                <option value="none">Никто не ищет</option>
+                <option value="searching">Идёт поиск</option>
+                <option value="found">Найден</option>
+            </select>
+        </div>
 </div>
 
 {% endfor %}
