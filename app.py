@@ -191,8 +191,10 @@ def index():
 # Список заявок
 @app.route("/spisock")
 def spisock():
+    db.session.expire_all()  # Обнуление кэша сессии
     posts = Midding.query.all()
     return render_template('spisock.html', posts=posts)
+
 
 
 @app.route("/update_status/<int:post_id>", methods=['POST'])
