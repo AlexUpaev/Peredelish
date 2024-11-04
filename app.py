@@ -10,9 +10,12 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
+
+# Модель пользователя
 class Us_user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     N_name = db.Column(db.String(50), nullable=False)
@@ -21,17 +24,24 @@ class Us_user(db.Model, UserMixin):
     Password = db.Column(db.String(100), nullable=False)
     Role = db.Column(db.String(50), nullable=False)
 
+    # Связи с каскадным удалением
+    volunteers = db.relationship('Volunteer', backref='user', lazy=True, cascade="all, delete-orphan")
+    applications = db.relationship('Application', backref='application_user', lazy=True, cascade="all, delete-orphan")
+    messages = db.relationship('Message', backref='message_user', lazy=True, cascade="all, delete-orphan")
+
 # Модель волонтера
 class Volunteer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Experience = db.Column(db.String(20), nullable=False)
-    ContactInformation = db.Column(db.Text, nullable=False)
-    Interactions = db.Column(db.Boolean, nullable=False, default=False) 
+    ContactInformation = db.Column(db.String(100), nullable=False)
+    Interactions = db.Column(db.Boolean, nullable=False, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
-    
-    # Связь с моделью Us_user
-    user = db.relationship('Us_user', backref=db.backref('volunteers', lazy=True))
 
+    # Связь с моделью Us_user
+    us_user = db.relationship('Us_user')  # Keep this without a backref
+
+    # Связи с каскадным удалением
+    messages = db.relationship('Message', backref='message_volunteer', lazy=True, cascade="all, delete-orphan")
 
 # Модель пропавшего
 class Midding(db.Model):
@@ -42,16 +52,14 @@ class Midding(db.Model):
     Patronymic = db.Column(db.String(20), nullable=True)
     DataOfBirth = db.Column(db.Date, nullable=False)
     Gender = db.Column(db.String(10), nullable=False)
-    Description = db.Column(db.Text, nullable=True)
+    Description = db.Column(db.String(200), nullable=True)
     DataOfLastAppearance = db.Column(db.Date, nullable=False)
     PlaceOfLastAppearance = db.Column(db.String(50), nullable=False)
-
-# Модель поиска
-class Search(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
     Status = db.Column(db.String(20), nullable=False)
-    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
-    midding_id = db.Column(db.Integer, db.ForeignKey('midding.id'), nullable=False)
+
+
+    # Связи с каскадным удалением
+    applications = db.relationship('Application', backref='midding', lazy=True, cascade="all, delete-orphan")
 
 # Модель заявки
 class Application(db.Model):
@@ -69,6 +77,7 @@ class Message(db.Model):
     Whom = db.Column(db.String(60), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+
 
 # Инициализация базы данных
 with app.app_context():
@@ -173,10 +182,6 @@ def volunteer():
 
     return render_template('volunteer.html')
 
-
-
-
-
 # Главная страница
 @app.route("/index")
 @app.route("/") 
@@ -195,9 +200,11 @@ def spisock():
 def zayavka():
     if request.method == 'POST':
         try:
+            # Обработка фото
             photo_file = request.files.get('Photo')
             photo = base64.b64encode(photo_file.read()).decode('utf-8') if photo_file else None
 
+            # Данные о пропавшем человеке
             name = request.form['Name']
             surname = request.form['Surname']
             patronymic = request.form['Patronymic']
@@ -207,6 +214,7 @@ def zayavka():
             data_of_last_appearance = request.form['DataOfLastAppearance']
             place_of_last_appearance = request.form['PlaceOfLastAppearance']
 
+            # Создание записи о пропавшем
             post = Midding(
                 Photo=photo, 
                 Name=name, 
@@ -216,12 +224,28 @@ def zayavka():
                 Gender=gender, 
                 Description=description,
                 DataOfLastAppearance=datetime.strptime(data_of_last_appearance, '%Y-%m-%d'),
-                PlaceOfLastAppearance=place_of_last_appearance
+                PlaceOfLastAppearance=place_of_last_appearance,
+                Status='Никто не ищет'
             )
-
             db.session.add(post)
             db.session.commit()
-            flash('Заявка успешно добавлена!', 'success')
+
+            # Проверяем, что Midding был успешно добавлен
+            if post.id:
+                flash(f'Пропавший добавлен с ID: {post.id}', 'info')
+            else:
+                flash('Ошибка добавления пропавшего', 'danger')
+                return redirect('/zayavka')
+
+            # Создаем запись в Application
+            application = Application(
+                user_id=current_user.id,
+                midding_id=post.id
+            )
+            db.session.add(application)
+            db.session.commit()
+
+            flash("Заявка и запись поиска успешно добавлены!", "success")
             return redirect('/')
         
         except Exception as e:
@@ -230,7 +254,7 @@ def zayavka():
             return redirect('/zayavka')
     else:
         return render_template('zayavka.html')
- 
+
 @app.after_request
 def redirect_to_signin(response):
     if response.status_code == 401:
@@ -242,3 +266,5 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Создание таблиц, если их еще нет
     app.run(debug=True)
+
+#SNTP
