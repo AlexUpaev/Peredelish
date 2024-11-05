@@ -14,15 +14,53 @@ height: 48px;
 width: 48px;
 }
 
-
-
+html,
+body {
+    height: 100%;
+}
 /* Стили главной страницы */
 
-.divblock {
-    display: block;
+.Main_page_content {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-    max-width: 538px;
-    max-height: 1128;
+.volontir_main_text_place {
+
+    padding: 3vh;
+    
+
+    height: auto;
+    max-height: 50vh;
+    max-width: 50vh;
+    margin: auto 2vh auto auto;
+    color: white;
+    /* text-align: center; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 0.5vh solid white;
+}
+
+.volontir_main {
+    display: flex;
+    background-image: url(/static/image/ValantirMainPicture.png);
+    background-size: cover;
+    background-size: 100% 100%;
+    min-height: 100vh;
+}
+
+.Vstupi_v_valantirs_plase {
+    background-color: black;
+}
+
+
+
+.divblock {
+    max-height: 50%;
+    max-width: 40%;
+    min-width: 450px;
     width: auto;
     height: auto;
 
@@ -37,39 +75,52 @@ width: 48px;
 .maintext {
     font-size: 26px;
 }
-footer {
-    position: fixed;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    min-height: 50px;
-    padding: 10px 0px;
-    background-color: black;
-    color: #eee;
+
+.main_team {
+    background: rgb(197, 237, 193);
+    justify-content: center;
 }
 
+.main_team_photo {
+    max-height: 420px;
+    max-width: 560px;
+}
+
+.team_photo {
+    height: 100%;
+    width: 100%; 
+}
+
+.bottmcontent {
+    height: 120px;
+}
+
+.content {
+    min-height: 100%;
+}
 /* Стили списка пропавших */
+
+.cardsection { 
+    justify-content: center;
+} 
 
 .card {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 15px;
-    max-width: 540px; 
+    width: 540px; 
+    height: 830px;
 }
 
-.col {
-    max-width: 538px;
-    max-height: 1128;
-    width: auto;
-    height: auto;
+.img_section {
+    margin-left: auto;
+    margin-right: auto;
+    height: 470px;
 }
 
 .spisokimg{
     max-width: 300px;
     max-height: 600px;
-    width: auto;
-    height: auto;
-    align-items: center;
-    margin-left: auto;
-    margin-right: auto;
+    width: 540px;
+    height: 470px;
 }

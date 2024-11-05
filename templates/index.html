@@ -5,55 +5,102 @@
 {% endblock %}
 
 {% block content %}
-<section class="maincontent">
-  <h1>Главная страница</h1>
-  <article class="articles">
-    <div class="divblock">
-      <h2 class="Titels">История создания</h2>
-      <p class="maintext">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
-        eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
-        Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
-      </p>
-  </div>
-  </article>
 
-  <article class="articles">
-    <div class="divblock">
-      <h2 class="Titels">Наши сотрудники</h2>
-      <p class="maintext">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
-        eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
-        Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
-      </p>
+<section class="Main_page_content">
+  <div class="maincontent">
+    <article class="volontir_main">
+
+      <div class="volontir_main_text_place">
+        <h2 class="volontir_main_titel">Наша цель</h2>
+        <p class="volontir_main_text">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
+          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+        </p>
+      </div>
+
+    </article>
+
+    <article class="Vstupi_v_valantirs_plase">
+      
+
+    </article>
+
+
+    <article class="articles">
+      <div class="divblock">
+        <h2 class="Titels">История создания</h2>
+        <p class="maintext">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
+          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+          Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
+        </p>
     </div>
-  </article>
+    </article>
 
-  <article>
-      <div class="row text-white">
-        <div class="col-md-4 pt-3 pb-3 bg-black part1">
-          <h3 class="text-white"><strong>Заголовок 1</strong></h3>
+    <article class="articles">
+      <div class="divblock">
+        <h2 class="Titels">Наши сотрудники</h2>
+        <p class="maintext">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
+          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+          Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
+        </p>
+      </div>
+
+      <div class="main_team row">
+        <div class="main_team_photo">
+          <img class="team_photo" src="{{ url_for('static', filename='image/Maria.png')}}" alt="musha">
         </div>
-        <div class="col-md-4 pt-3 pb-3 bg-black part1">
-          <h3 class="text-white"><strong>Заголовок 2</strong></h3>
+
+        <div class="main_team_photo">
+          <img class="team_photo" src="{{ url_for('static', filename='image/Ump.png')}}" alt="upaev">
         </div>
-        <div class="col-md-4 pt-3 pb-3 bg-black part1">
-          <h3 class="text-white"><strong>Заголовок 3</strong></h3>
+
+        <div class="main_team_photo">
+          <img class="team_photo" src="{{ url_for('static', filename='image/Me.png')}}" alt="Me">
         </div>
       </div>
-    
+
+      <div class="divblock">
+        <p class="maintext">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
+          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+          Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
+        </p>
+      </div>
+
+
+    </article>
+
+    <article class="articles">
+      <div class="divblock">
+        <h2 class="Titels">Чо-то ещё</h2>
+        <p class="maintext">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
+          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
+          Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
+        </p>
+      </div>
+    </article>
+  </div>
+  
+
+  <div class="bottmcontent">
       <div class="row text-white", style="overflow-wrap: break-word">
         <div class="col-md-4 pt-3 pb-3 bg-black part1">
+          <h3 class="text-white"><strong>Заголовок 1</strong></h3>
           <p>akfifnvlsjdf,jhlvhsd,tknhsvdnjfalinaekrhfvfauiaervnhfiuierhn,fuhsdfush,gvnsdurghvsnkghsurgnhvs,djvgerkgvungiuhi</p>
         </div>
         <div class="col-md-4 pt-3 pb-3 bg-black part1">
+          <h3 class="text-white"><strong>Заголовок 1</strong></h3>
           <p>akfifnvlsjdf,jhlvhsd,tknhsvdnjfalinaekrhfvfauiaervnhfiuierhn,fuhsdfush,gvnsdurghvsnkghsurgnhvs,djvgerkgvungiuhi</p>
         </div>
         <div class="col-md-4 pt-3 pb-3 bg-black part1">
+          <h3 class="text-white"><strong>Заголовок 1</strong></h3>
           <p>akfifnvlsjdf,jhlvhsd,tknhsvdnjfalinaekrhfvfauiaervnhfiuierhn,fuhsdfush,gvnsdurghvsnkghsurgnhvs,djvgerkgvungiuhi</p>
         </div>
       </div>
-  </article>
+    </div>
 
 </section>
 
