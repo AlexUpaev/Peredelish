@@ -7,20 +7,21 @@
 {% block content %}
 <h1>Списки пропавших</h1>
 
-<div class="cardsection row">
-    {% for post in posts %}
-    <div class="card">
-        <div class="row g-0">
-            <div class="col">
-                <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
-            </div>
-            <div class="card-body">
-                <h5 class="card-title">{{ post.Name }} {{ post.Surname }} {{ post.Patronymic }}</h5>
-                <p class="card-text">{{ post.Description }}</p>
-                <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
-                <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
-                <p class="card-text"><small class="text-muted">Место последнего появления: {{ post.PlaceOfLastAppearance }}</small></p>
-            </div>
+<section class="spisok_main">
+    <div class="cardsection row mb-gutters">
+        {% for post in posts %}
+        <div class="card col-md-6 col-lg-4 mb-4">
+            <div class="row g-0">
+                <div class="img_section">
+                    <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.Name }} {{ post.Surname }} {{ post.Patronymic }}</h5>
+                    <p class="card-text">{{ post.Description }}</p>
+                    <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
+                    <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
+                    <p class="card-text"><small class="text-muted">Место последнего появления: {{ post.PlaceOfLastAppearance }}</small></p>
+                </div>
 
             <div class="mb-3">
                 <label for="status" class="form-label">Статус поиска</label>
@@ -28,18 +29,18 @@
                     <!-- Форма для изменения статуса -->
                     <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">
                         <select id="status" name="status" class="form-select">
-                            <option value="none" {% if post.Status == "none" %}selected{% endif %}>Никто не ищет</option>
-                            <option value="searching" {% if post.Status == "searching" %}selected{% endif %}>В поиске</option>
-                            <option value="found" {% if post.Status == "found" %}selected{% endif %}>Обнаружен</option>
+                            <option value="Никто не ищет" {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                            <option value="В поиске" {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                            <option value="Обнаружен" {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
                         </select>
                         <button type="submit" class="btn btn-primary mt-2">Обновить статус</button>
                     </form>
                 {% else %}
                     <!-- Только для отображения статуса, если пользователь не волонтёр -->
                     <select id="status" name="status" class="form-select" disabled>
-                        <option value="none" {% if post.Status == "none" %}selected{% endif %}>Никто не ищет</option>
-                        <option value="searching" {% if post.Status == "searching" %}selected{% endif %}>В поиске</option>
-                        <option value="found" {% if post.Status == "found" %}selected{% endif %}>Обнаружен</option>
+                        <option value="Никто не ищет" {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                        <option value="В поиске" {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                        <option value="Обнаружен" {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
                     </select>
                 {% endif %}
             </div>

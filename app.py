@@ -220,7 +220,7 @@ def update_status(post_id):
             flash('Статус успешно обновлён!', 'success')
 
             # Если выбран статус "Обнаружен", перенаправляем на страницу сообщений
-            if new_status == "found":
+            if new_status == "Обнаружен":
                 return redirect(url_for('message', midding_id=post_id))
         except Exception as e:
             db.session.rollback()
@@ -229,7 +229,8 @@ def update_status(post_id):
     else:
         flash('Пропавший не найден.', 'danger')
 
-    return redirect(url_for('spisock'))  # Возврат к списку пропавших, если статус не "Обнаружен"
+    return redirect(url_for('spisok'))  # Возврат к списку пропавших, если статус не "Обнаружен"
+
 
 
 # Создание заявки
