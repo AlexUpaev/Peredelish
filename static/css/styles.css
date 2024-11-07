@@ -1,10 +1,12 @@
 /* HEADER */
 header {
+
     position: sticky;
     top: 0;
     padding: 10px;
     z-index: 1000;
-    background: #fff;
+    background: black;
+    color: #fff;
     -webkit-box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15) ;
 }
@@ -20,6 +22,19 @@ body {
 }
 /* Стили главной страницы */
 
+
+.facke_paralaks {
+    background: url(/static/image/Rescuer.jpg) center / cover no-repeat fixed;
+    display: flex;
+    background-size: 100% 100%;
+    min-height: 50vh;
+    flex-direction: column;
+}
+.granic {
+    height: 8vh;
+    background-color: rgb(58, 58, 58);
+}
+
 .Main_page_content {
     min-height: 100vh;
     display: flex;
@@ -29,18 +44,24 @@ body {
 .volontir_main_text_place {
 
     padding: 3vh;
-    
 
     height: auto;
     max-height: 50vh;
     max-width: 50vh;
-    margin: auto 2vh auto auto;
+    margin: auto auto auto auto;
     color: white;
     /* text-align: center; */
     display: flex;
     flex-direction: column;
     justify-content: center;
     border: 0.5vh solid white;
+}
+
+.volontir_main_name {
+    margin: auto auto auto auto;
+    font-size: 10vh;
+    color: white;
+    justify-content: center;
 }
 
 .volontir_main {
@@ -52,7 +73,42 @@ body {
 }
 
 .Vstupi_v_valantirs_plase {
+
+    display: flex;
+
+    min-height: 60vh;
     background-color: black;
+}
+
+
+.Vstupi_v_valantirs_text_place {
+    padding: 3vh;
+
+    height: auto;
+    max-height: 50vh;
+    max-width: 50vh;
+    margin: auto auto auto 30vh;
+    color: white;
+    /* text-align: center; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border: 0.5vh solid rgb(182, 87, 28);
+
+}
+
+.Vstupi_v_valantirs_button {
+    width: 10vh;;
+}
+
+.Vstupi_v_valantirs_img {
+    margin: auto auto auto 30vh;
+
+    height: 50vh;
+    width: 50vh;
+
+    /* width: 50%;
+    height: 70%; */
 }
 
 
@@ -101,26 +157,36 @@ body {
 /* Стили списка пропавших */
 
 .cardsection { 
-    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 5px;
+
+    background-color: rgb(231, 231, 231);
+    max-width: 90%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
 } 
 
 .card {
+    justify-content: center;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 15px;
-    width: 540px; 
-    height: 830px;
+    max-width: 450px; 
+    max-height: 700px;
 }
 
 .img_section {
     margin-left: auto;
     margin-right: auto;
-    height: 470px;
+    max-width: 300px;
+    max-height: 400px;
 }
 
 .spisokimg{
-    max-width: 300px;
-    max-height: 600px;
-    width: 540px;
-    height: 470px;
+    /* max-width: 540px;
+    max-height: 470px; */
+    width: 100%;
+    height: 100%;
 }
