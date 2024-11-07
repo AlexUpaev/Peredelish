@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy  # type: ignore
 from flask_login import LoginManager, login_user, login_required, UserMixin
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_mail import Mail, Message
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
@@ -13,6 +13,16 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+
+#Gmail настройки
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your-app-password' 
+app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+
+mail = Mail(app)
 
 
 # Модель пользователя
@@ -77,7 +87,6 @@ class Message(db.Model):
     Whom = db.Column(db.String(60), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
-
 
 # Инициализация базы данных
 with app.app_context():
@@ -196,7 +205,6 @@ def spisock():
     return render_template('spisock.html', posts=posts)
 
 
-
 @app.route("/update_status/<int:post_id>", methods=['POST'])
 @login_required
 def update_status(post_id):
@@ -210,6 +218,10 @@ def update_status(post_id):
         try:
             db.session.commit()  # Сохраняем изменения в БД
             flash('Статус успешно обновлён!', 'success')
+
+            # Если выбран статус "Обнаружен", перенаправляем на страницу сообщений
+            if new_status == "found":
+                return redirect(url_for('message', midding_id=post_id))
         except Exception as e:
             db.session.rollback()
             flash(f'Ошибка при обновлении статуса: {str(e)}', 'danger')
@@ -217,7 +229,8 @@ def update_status(post_id):
     else:
         flash('Пропавший не найден.', 'danger')
 
-    return redirect(url_for('spisock'))  # Возврат к списку пропавших
+    return redirect(url_for('spisock'))  # Возврат к списку пропавших, если статус не "Обнаружен"
+
 
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
@@ -272,13 +285,57 @@ def zayavka():
 
             flash("Заявка и запись поиска успешно добавлены!", "success")
             return redirect('/')
-        
+
         except Exception as e:
             db.session.rollback()
             flash(f'При добавлении заявки произошла ошибка: {str(e)}', 'danger')
             return redirect('/zayavka')
     else:
         return render_template('zayavka.html')
+
+@app.route('/message/<int:midding_id>', methods=['GET', 'POST'])
+def message(midding_id):
+    if request.method == 'POST':
+        text = request.form.get('text')
+        if text:
+            # Получение текущего пользователя
+            user_id = current_user.id  # Используем current_user для получения ID текущего пользователя
+            volunteer_id = current_user.volunteers[0].id if current_user.volunteers else None
+
+            now = datetime.now()
+            date_of_dispatch = now.date()
+            time_of_dispatch = now.time()
+
+            try:
+                # Создание нового сообщения
+                new_message = Message(
+                    Text=text,
+                    DataOfDispatch=date_of_dispatch,
+                    TimeOfDispatch=time_of_dispatch,
+                    FromWhom=current_user.Email,
+                    Whom=Us_user.query.get(user_id).Email,
+                    user_id=user_id,  # Убедитесь, что передаете существующий user_id
+                    volunteer_id=volunteer_id  # Или None, если нет волонтера
+                )
+
+                # Добавление сообщения в БД
+                db.session.add(new_message)
+                db.session.commit()
+
+                # Отправка email-сообщения получателю
+                msg = Message('Новое сообщение от волонтера', recipients=[Us_user.query.get(user_id).Email])
+                msg.body = text
+                mail.send(msg)
+
+                flash('Сообщение успешно отправлено!', 'success')
+            except Exception as e:
+                db.session.rollback()  # Откат транзакции в случае ошибки
+                flash(f'Произошла ошибка при отправке сообщения: {str(e)}', 'danger')
+        else:
+            flash('Введите текст сообщения', 'danger')
+
+    return render_template('message.html', midding_id=midding_id)
+
 
 @app.after_request
 def redirect_to_signin(response):
@@ -291,5 +348,3 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Создание таблиц, если их еще нет
     app.run(debug=True)
-
-#SNTP

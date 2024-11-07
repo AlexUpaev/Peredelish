@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Отправка сообщения
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Отправка сообщения</h1>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="POST">
+                <!-- Скрытое поле для передачи идентификатора пропавшего -->
+                <input type="hidden" name="midding_id" value="{{ midding_id }}">
+
+                <div class="form-group mb-3">
+                    <label for="text" class="form-label">Сообщение</label>
+                    <textarea id="text" name="text" class="form-control" rows="5" required placeholder="Введите сообщение..."></textarea>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary px-4 py-2">Отправить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
