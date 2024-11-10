@@ -1,26 +1,34 @@
 import base64
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
-from flask_sqlalchemy import SQLAlchemy  # type: ignore
-from flask_login import LoginManager, login_user, login_required, UserMixin
-import os
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, UserMixin, current_user
 from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+import os
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Настройки базы данных
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
-#Gmail настройки
+# Настройки Gmail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your-app-password' 
-app.config['MAIL_DEFAULT_SENDER'] = 'your-email@gmail.com'
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv.('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 
 mail = Mail(app)
 
@@ -37,7 +45,7 @@ class Us_user(db.Model, UserMixin):
     # Связи с каскадным удалением
     volunteers = db.relationship('Volunteer', backref='user', lazy=True, cascade="all, delete-orphan")
     applications = db.relationship('Application', backref='application_user', lazy=True, cascade="all, delete-orphan")
-    messages = db.relationship('Message', backref='message_user', lazy=True, cascade="all, delete-orphan")
+    messages = db.relationship('M_Message', backref='message_user', lazy=True, cascade="all, delete-orphan")
 
 # Модель волонтера
 class Volunteer(db.Model):
@@ -51,7 +59,7 @@ class Volunteer(db.Model):
     us_user = db.relationship('Us_user')  # Keep this without a backref
 
     # Связи с каскадным удалением
-    messages = db.relationship('Message', backref='message_volunteer', lazy=True, cascade="all, delete-orphan")
+    messages = db.relationship('M_Message', backref='message_volunteer', lazy=True, cascade="all, delete-orphan")
 
 # Модель пропавшего
 class Midding(db.Model):
@@ -78,7 +86,7 @@ class Application(db.Model):
     midding_id = db.Column(db.Integer, db.ForeignKey('midding.id'), nullable=False)
 
 # Модель сообщения
-class Message(db.Model):
+class M_Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Text = db.Column(db.Text, nullable=False)
     DataOfDispatch = db.Column(db.Date, nullable=False)
@@ -156,6 +164,7 @@ def register():
 
     return render_template('register.html')
 
+
 # Маршрут для добавления волонтера
 from flask_login import current_user
 
@@ -229,7 +238,7 @@ def update_status(post_id):
     else:
         flash('Пропавший не найден.', 'danger')
 
-    return redirect(url_for('spisok'))  # Возврат к списку пропавших, если статус не "Обнаружен"
+    return redirect(url_for('spisock'))  # Возврат к списку пропавших, если статус не "Обнаружен"
 
 
 
@@ -296,11 +305,15 @@ def zayavka():
 
 @app.route('/message/<int:midding_id>', methods=['GET', 'POST'])
 def message(midding_id):
+    if not current_user.is_authenticated:  # Проверка, аутентифицирован ли пользователь
+        flash('Пожалуйста, войдите в систему для отправки сообщения.', 'danger')
+        return redirect(url_for('login'))  # Перенаправление на страницу входа
+
     if request.method == 'POST':
         text = request.form.get('text')
         if text:
             # Получение текущего пользователя
-            user_id = current_user.id  # Используем current_user для получения ID текущего пользователя
+            user_id = current_user.id  # Теперь можно безопасно использовать current_user.id
             volunteer_id = current_user.volunteers[0].id if current_user.volunteers else None
 
             now = datetime.now()
@@ -308,27 +321,40 @@ def message(midding_id):
             time_of_dispatch = now.time()
 
             try:
-                # Создание нового сообщения
-                new_message = Message(
-                    Text=text,
-                    DataOfDispatch=date_of_dispatch,
-                    TimeOfDispatch=time_of_dispatch,
-                    FromWhom=current_user.Email,
-                    Whom=Us_user.query.get(user_id).Email,
-                    user_id=user_id,  # Убедитесь, что передаете существующий user_id
-                    volunteer_id=volunteer_id  # Или None, если нет волонтера
-                )
+                # Получаем всех пользователей, оставивших заявку на пропавшего
+                missing_person = Midding.query.get(midding_id)  # Используем модель Midding
+                applicants = missing_person.applications  # Получаем список заявителей
 
-                # Добавление сообщения в БД
-                db.session.add(new_message)
-                db.session.commit()
+                if applicants:
+                    # Для каждого пользователя из списка заявителей создаем сообщение
+                    for applicant in applicants:
+                        new_message = M_Message(
+                            Text=text,
+                            DataOfDispatch=date_of_dispatch,
+                            TimeOfDispatch=time_of_dispatch,
+                            FromWhom=current_user.Email,
+                            Whom=applicant.application_user.Email,  # Пользователь, оставивший заявку
+                            user_id=applicant.application_user.id,  # ID того, кто оставил заявку
+                            volunteer_id=volunteer_id  # Или None, если нет волонтера
+                        )
 
-                # Отправка email-сообщения получателю
-                msg = Message('Новое сообщение от волонтера', recipients=[Us_user.query.get(user_id).Email])
-                msg.body = text
-                mail.send(msg)
+                        # Добавление сообщения в БД
+                        db.session.add(new_message)
+                        db.session.commit()
 
-                flash('Сообщение успешно отправлено!', 'success')
+                        # Отправка email-сообщения получателю
+                        email_msg = Message(  # Изменили имя переменной
+                            'Новое сообщение от волонтера',
+                            recipients=[applicant.application_user.Email],
+                            sender=str(current_user.Email)
+                        )
+                        email_msg.body = text
+                        mail.send(email_msg)
+
+                    flash('Сообщения успешно отправлены всем заявителям!', 'success')
+                else:
+                    flash('Нет заявителей для данного пропавшего', 'warning')
+
             except Exception as e:
                 db.session.rollback()  # Откат транзакции в случае ошибки
                 flash(f'Произошла ошибка при отправке сообщения: {str(e)}', 'danger')
@@ -336,7 +362,6 @@ def message(midding_id):
             flash('Введите текст сообщения', 'danger')
 
     return render_template('message.html', midding_id=midding_id)
-
 
 @app.after_request
 def redirect_to_signin(response):
