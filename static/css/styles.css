@@ -40,12 +40,12 @@ body {
 
 .volontir_main_text_place {
 
-    padding: 3vh;
+    padding: 5%;
 
     height: auto;
     max-height: 50vh;
     max-width: 50vh;
-    margin: auto auto auto auto;
+    margin: auto;
     color: white;
     /* text-align: center; */
     display: flex;
@@ -55,7 +55,7 @@ body {
 }
 
 .volontir_main_name {
-    margin: auto auto auto auto;
+    margin: auto;
     font-size: 10vh;
     color: white;
     justify-content: center;
@@ -74,7 +74,6 @@ body {
     background-color: black;
 }
 
-
 .Vstupi_v_valantirs_text_place {
     padding: 3vh;
     height: auto;
@@ -86,10 +85,10 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border: 0.5vh solid rgb(182, 87, 28);
+    border: 0.5vh solid rgb(193, 95, 34);
 }
 .Vstupi_v_valantirs_button {
-    width: 10vh;;
+    width: 100%;
 }
 .Vstupi_v_valantirs_img {
     margin: auto auto auto 30vh;
@@ -111,26 +110,47 @@ body {
 }
 
 .Titels {
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .maintext {
-    font-size: 26px;
+    font-size: 15px;
 }
 
 .main_team {
-    background: rgb(197, 237, 193);
+    display: grid;
+    margin: 20px auto 20px auto;
+    background: rgb(240, 147, 89);
+    /* height: auto; */
+    grid-template-columns: 1fr 1fr;
+    /* justify-content: center; */
+}
+
+.team_sotr_sect {
+    display: inline-block;
+    vertical-align: middle;
+}
+.team_png_place {
+    padding: 5px;
+    display: flex;
     justify-content: center;
+    /* align-items: center; */
 }
 
-.main_team_photo {
-    max-height: 420px;
-    max-width: 560px;
-}
+.team_sotr_text {
+    padding: 20px;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
 
-.team_photo {
-    height: 100%;
-    width: 100%; 
+}
+.team_png {
+    max-height: 40vh;
+    max-width: 40vh;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .bottmcontent {
@@ -139,6 +159,15 @@ body {
 
 .content {
     min-height: 100%;
+}
+
+
+.main_inf {
+    background-color: rgb(231, 231, 231);
+    border-radius: 1%;
+    max-width: 90%;
+    height: auto;
+    margin: 20px auto auto auto;
 }
 /* Стили списка пропавших */
 
