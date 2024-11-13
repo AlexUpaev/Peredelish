@@ -20,7 +20,7 @@ body {
     height: 100%;
 }
 /* Стили главной страницы */
-bottmcontent
+
 .facke_paralaks {
     background: url(/static/image/Rescuer.jpg) center / cover no-repeat fixed;
     display: flex;
@@ -122,7 +122,7 @@ bottmcontent
     font-size: 15px;
 }
 .Titels_div {
-    margin-top: 2vw;
+    margin-top: 4vw;
     margin-bottom: 2vw;
 
     text-align: center;
@@ -150,14 +150,11 @@ bottmcontent
     height: 20vw;
     width: 20vw;
     display: flex;
-    
-
 }
 
 .team_sotr_text {
     padding: 1vw 2vw;
     text-align: center;
-    
 }
 .team_png {
     border-radius: 1vw;
@@ -168,13 +165,37 @@ bottmcontent
 
 .bottmcontent {
     display: grid;
-    /* grid-template-columns: 1fr 1fr 1fr; */
+    grid-template-columns: 1fr 1fr;
 }
 
 .content {
     min-height: 100%;
 }
+.icon_place {
+    display: flex;
+    /* display: grid; */
+    grid-template-columns: 1fr 1fr 1fr;
+}
 
+.col-1 {
+    width: auto;
+}
+.col-2 {
+    width: auto;
+}
+
+.soc_png_place {
+    min-width: 2vw;
+    min-height: 2vw;
+    width: 5vh;
+    height: 5vh;
+    display: block;
+    
+}
+.soc_png {
+    height: 100%;
+    width: 100%;
+}
 
 
 /* Стили списка пропавших */
