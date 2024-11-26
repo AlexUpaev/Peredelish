@@ -27,7 +27,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv.('MAIL_PASSWORD')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 
 mail = Mail(app)
@@ -313,7 +313,7 @@ def message(midding_id):
         text = request.form.get('text')
         if text:
             # Получение текущего пользователя
-            user_id = current_user.id  # Теперь можно безопасно использовать current_user.id
+            user_id = current_user.id
             volunteer_id = current_user.volunteers[0].id if current_user.volunteers else None
 
             now = datetime.now()
@@ -322,41 +322,44 @@ def message(midding_id):
 
             try:
                 # Получаем всех пользователей, оставивших заявку на пропавшего
-                missing_person = Midding.query.get(midding_id)  # Используем модель Midding
-                applicants = missing_person.applications  # Получаем список заявителей
+                missing_person = Midding.query.get(midding_id)
+                applicants = missing_person.applications
 
                 if applicants:
-                    # Для каждого пользователя из списка заявителей создаем сообщение
                     for applicant in applicants:
                         new_message = M_Message(
                             Text=text,
                             DataOfDispatch=date_of_dispatch,
                             TimeOfDispatch=time_of_dispatch,
                             FromWhom=current_user.Email,
-                            Whom=applicant.application_user.Email,  # Пользователь, оставивший заявку
-                            user_id=applicant.application_user.id,  # ID того, кто оставил заявку
-                            volunteer_id=volunteer_id  # Или None, если нет волонтера
+                            Whom=applicant.application_user.Email,
+                            user_id=applicant.application_user.id,
+                            volunteer_id=volunteer_id
                         )
 
-                        # Добавление сообщения в БД
                         db.session.add(new_message)
                         db.session.commit()
 
                         # Отправка email-сообщения получателю
-                        email_msg = Message(  # Изменили имя переменной
+                        email_msg = Message(
                             'Новое сообщение от волонтера',
                             recipients=[applicant.application_user.Email],
                             sender=str(current_user.Email)
                         )
                         email_msg.body = text
-                        mail.send(email_msg)
-
-                    flash('Сообщения успешно отправлены всем заявителям!', 'success')
-                else:
-                    flash('Нет заявителей для данного пропавшего', 'warning')
+                        try:
+                            mail.send(email_msg)
+                        except Exception as e:
+                            error_message = str(e)
+                            if "[Errno 11001] getaddrinfo failed" in error_message:
+                                flash('Ошибка сети: не удается разрешить адрес. Проверьте подключение к интернету.', 'danger')
+                            elif "530, b'5.7.0 Authentication Required" in error_message:
+                                flash('Ошибка аутентификации: проверьте настройки аутентификации почты.', 'danger')
+                            else:
+                                flash(f'Произошла ошибка при отправке сообщения: {error_message}', 'danger')
 
             except Exception as e:
-                db.session.rollback()  # Откат транзакции в случае ошибки
+                db.session.rollback()
                 flash(f'Произошла ошибка при отправке сообщения: {str(e)}', 'danger')
         else:
             flash('Введите текст сообщения', 'danger')
@@ -374,3 +377,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Создание таблиц, если их еще нет
     app.run(debug=True)
+

@@ -11,8 +11,9 @@ header {
 }
 
 .header_img {
-height: 48px;
-width: 48px;
+height: 64px;
+width: 64px;
+margin-left: 128px;
 }
 
 html,
