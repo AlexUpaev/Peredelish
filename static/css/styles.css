@@ -123,7 +123,7 @@ body {
     font-size: 15px;
 }
 .Titels_div {
-    margin-top: 4vw;
+    margin-top: 6vw;
     margin-bottom: 2vw;
 
     text-align: center;
@@ -136,7 +136,11 @@ body {
     height: auto;
     margin: 20px auto auto auto;
 }
-
+.main_team_place {
+    background-image: url(/static/image/BGwave.png);
+    background-size: cover;
+    background-size: 100% 100%;
+}
 .main_team {
     display: grid;
     margin: 20px 10vw 20px 10vw;
@@ -144,8 +148,8 @@ body {
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-.team_sotr_sect {
-}
+/* .team_sotr_sect {
+} */
 
 .team_png_place {
     height: 20vw;
@@ -155,7 +159,7 @@ body {
 
 .team_sotr_text {
     padding: 1vw 2vw;
-    text-align: center;
+    text-align: justify;
 }
 .team_png {
     border-radius: 1vw;
@@ -167,11 +171,14 @@ body {
 .bottmcontent {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    height: 10vw;
 }
 
 .content {
     min-height: 100%;
 }
+
+
 .icon_place {
     display: flex;
     /* display: grid; */
@@ -180,6 +187,10 @@ body {
 
 .col-1 {
     width: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
 }
 .col-2 {
     width: auto;
