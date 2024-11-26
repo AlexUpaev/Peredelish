@@ -89,6 +89,11 @@ body {
     border: 0.5vh solid rgb(193, 95, 34);
 }
 .Vstupi_v_valantirs_button {
+
+    background-color: rgb(193, 95, 34);
+    color:rgb(231, 231, 231);
+    border: 0.5vh solid rgb(193, 95, 34);
+    border-radius:  0.5vh;
     width: 100%;
 }
 .Vstupi_v_valantirs_img {
@@ -117,59 +122,83 @@ body {
 .maintext {
     font-size: 15px;
 }
+.Titels_div {
+    margin-top: 4vw;
+    margin-bottom: 2vw;
 
-.main_team {
-    display: grid;
-    margin: 20px auto 20px auto;
-    background: rgb(240, 147, 89);
-    /* height: auto; */
-    grid-template-columns: 1fr 1fr;
-    /* justify-content: center; */
+    text-align: center;
 }
 
-.team_sotr_sect {
-    display: inline-block;
-    vertical-align: middle;
-}
-.team_png_place {
-    padding: 5px;
-    display: flex;
-    justify-content: center;
-    /* align-items: center; */
-}
-
-.team_sotr_text {
-    padding: 20px;
-    width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-
-}
-.team_png {
-    max-height: 40vh;
-    max-width: 40vh;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.bottmcontent {
-    height: 120px;
-}
-
-.content {
-    min-height: 100%;
-}
-
-
-.main_inf {
+.Story {
     background-color: rgb(231, 231, 231);
     border-radius: 1%;
     max-width: 90%;
     height: auto;
     margin: 20px auto auto auto;
 }
+
+.main_team {
+    display: grid;
+    margin: 20px 10vw 20px 10vw;
+    /* background: rgb(240, 147, 89); */
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.team_sotr_sect {
+}
+
+.team_png_place {
+    height: 20vw;
+    width: 20vw;
+    display: flex;
+}
+
+.team_sotr_text {
+    padding: 1vw 2vw;
+    text-align: center;
+}
+.team_png {
+    border-radius: 1vw;
+    margin-left: 3.5vw;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.bottmcontent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.content {
+    min-height: 100%;
+}
+.icon_place {
+    display: flex;
+    /* display: grid; */
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.col-1 {
+    width: auto;
+}
+.col-2 {
+    width: auto;
+}
+
+.soc_png_place {
+    min-width: 2vw;
+    min-height: 2vw;
+    width: 5vh;
+    height: 5vh;
+    display: block;
+    
+}
+.soc_png {
+    height: 100%;
+    width: 100%;
+}
+
+
 /* Стили списка пропавших */
 
 .cardsection { 
