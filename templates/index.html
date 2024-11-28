@@ -1,163 +1,147 @@
-{% extends "base.html" %}
-
-{% block title %}
-Главная страница
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %} Главная страница {% endblock %} {%
+block content %}
 
 <section class="Main_page_content">
   <div class="maincontent">
-
-    
     <article class="volontir_main">
-
-      <h1 class="volontir_main_name">
-        POTERYSHKI
-      </h1>
+      <h1 class="volontir_main_name">POTERYSHKI</h1>
 
       <div class="volontir_main_text_place">
-        <h2 class="volontir_main_titel">Наша цель</h2>
-        <p class="volontir_main_text">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
-          eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+        <p class="volontir_main_text"  style="font-size: 16px">
+          Сайт посвящён поиску пропавших людей. Наша цель – не только
+          информировать общество, но и объединить усилия всех людей для поиска
+          пропавших.
         </p>
       </div>
-
     </article>
 
     <article class="Vstupi_v_valantirs_plase">
       <div class="Vstupi_v_valantirs_text_place">
-        <p class="volontir_main_text">
-          Тебе 18 и хочешь стать валантёрам?
-        </p>
-        <button class="Vstupi_v_valantirs_button" >
+        <p class="volontir_main_text"  style="font-size: 16px">Тебе 18 и хочешь стать волонтёром?</p>
+        <button
+          class="Vstupi_v_valantirs_button"
+          href="{{ url_for('register') }}"
+        >
           Вступить!
         </button>
       </div>
 
-      <img class="Vstupi_v_valantirs_img" src="{{ url_for('static', filename='image/lost_cild.jpg')}}" alt="child">
+      <img
+        class="Vstupi_v_valantirs_img"
+        src="{{ url_for('static', filename='image/lost_cild.jpg')}}"
+        alt="child"
+      />
     </article>
+
+    <div class="granic"></div>
 
     <div class="facke_paralaks"></div>
 
     <div class="granic"></div>
 
     <div class="main_inf">
-      <!-- <article class="Story">
-        <div class="divblock">
-          <h2 class="Titels">История создания</h2>
-          <p class="maintext">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat debitis laboriosam, neque aspernatur blanditiis vel. Porro molestiae hic odit! Ipsam sint alias corporis maxime veritatis, 
-            eaque fugiat nesciunt magnam? Quis. Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
-            Consequatur commodi saepe earum dolorum odit nemo voluptate. Fugit quibusdam, hic doloribus rem reprehenderit vel eius totam, rerum obcaecati a, quam incidunt? 
-          </p>
-        </div>
-      </article> -->
-  
       <article class="articles">
-        <div class="Titels_div">
+        <p class="some_text"  style="font-size: 16px">
+          Проблема без вести пропавших людей существует во многих странах мира и
+          затрагивает не только семьи и друзей пропавших, но и общество в целом.
+          Каждый год тысячи людей исчезают по различным причинам, и поиск их
+          становится настоящим вызовом для правоохранительных органов,
+          волонтеров и организаций, занимающихся помощью в таких ситуациях.
+        </p>
+
+        <div class="Titels_div"  style="font-size: 16px">
           <h2 class="Titels">Наши сотрудники</h2>
         </div>
         <div class="main_team_place">
-        <div class="main_team">
-          
-          
-          <div class="Sotr1">
-            <div class="team_png_place">
-              <img class="team_png" src="{{ url_for('static', filename='image/Maria.png')}}" alt="musha">
+          <div class="main_team">
+            <div class="Sotr1">
+              <div class="team_png_place">
+                <img
+                  class="team_png"
+                  src="{{ url_for('static', filename='image/Maria.png')}}"
+                  alt="musha"
+                />
+              </div>
+
+              <div class="team_sotr_text"  style="font-size: 16px">
+                <h3>Мария Ишутинова</h3>
+                <p>
+                  Ишутинова Мария Александровна отвечала за дизайн сайта. Она
+                  занималась разработкой концепции визуального оформления:
+                  подбирала цвета, шрифты и иконки, а также придумывала тексты
+                  для заполнения сайта.
+                </p>
+              </div>
             </div>
 
-            <div class="team_sotr_text">
-              <h3>Мария Ишутинова</h3>
-              <p>
-                Ишутинова Мария Александровна отвечала за дизайн сайта. Она занималась разработкой концепции визуального оформления: подбирала цвета, шрифты и иконки, а также придумывала тексты для заполнения сайта. Ее работа была направлена на создание гармоничного и привлекательного интерфейса, который бы не только радовал глаз, но и способствовал легкому восприятию информации. 
-              </p>
+            <div class="Sotr2">
+              <div class="team_png_place">
+                <img
+                  class="team_png"
+                  src="{{ url_for('static', filename='image/Ump.png')}}"
+                  alt="upaev"
+                />
+              </div>
+
+              <div class="team_sotr_text"  style="font-size: 16px">
+                <h3>Упаев Александр</h3>
+                <p>
+                  Упаев Александр Юлианович занимался бэкенд-разработкой. Он
+                  использовал фреймворк Flask для создания серверной части
+                  сайта, подключил базу данных DB SQLite и обеспечил
+                  функциональность авторизации и регистрации пользователей.
+                </p>
+              </div>
             </div>
 
+            <div class="Sotr3">
+              <div class="team_png_place">
+                <img
+                  class="team_png"
+                  src="{{ url_for('static', filename='image/Me.png')}}"
+                  alt="Me"
+                />
+              </div>
+
+              <div class="team_sotr_text "  style="font-size: 16px">
+                <h3>Александров Михаил</h3>
+                <p>
+                  Александров Михаил Эдуардович занимался внешней разработкой
+                  сайта, сосредоточившись на фронтенде. Его задача заключалась в
+                  создании интерактивного и привлекательного интерфейса для
+                  пользователей.
+                </p>
+              </div>
+            </div>
           </div>
-
-          <div class="Sotr2">
-            <div class="team_png_place">
-              <img class="team_png" src="{{ url_for('static', filename='image/Ump.png')}}" alt="upaev">
-            </div>
-            
-            <div class="team_sotr_text">
-              <h3>Упаев Александр</h3>
-              <p>
-                Упаев Александр Юлианович занимался бэкенд-разработкой. Он использовал фреймворк Flask для создания серверной части сайта, подключил базу данных DB SQLite и обеспечил функциональность авторизации и регистрации пользователей. Александр реализовал систему ограничения прав доступа, что позволяет защитить данные от случайных изменений другими пользователями. Он также разработал функционал отправки сообщений на почтовые адреса и хэширования паролей, что повышает безопасность пользователей. Важной частью работы Александра стало хранение информации, которую вносят пользователи, включая даты и фотографии. Эти данные были зашифрованы в текстовые файлы, которые впоследствии можно дешифровать и отображать на сайте.
-              </p>
-            </div>
-
-          </div>
-
-          <div class="Sotr3">
-            <div class="team_png_place">
-              <img class="team_png" src="{{ url_for('static', filename='image/Me.png')}}" alt="Me">
-            </div>
-
-            <div class="team_sotr_text">
-              <h3>Александров Михаил</h3>
-              <p>
-                Александров Михаил Эдуардович занимался внешней разработкой сайта, сосредоточившись на фронтенде. Его задача заключалась в создании интерактивного и привлекательного интерфейса для пользователей. Михаил применял современные технологии веб-разработки, такие как HTML, CSS и JavaScript, чтобы обеспечить удобство навигации, адаптивность сайта и визуальную эстетику.
-              </p>
-            </div>
-
-          </div>
-
         </div>
-      </div>
-  
-        <div class="divblock">
-          <p class="maintext">
-            Ишутинова Мария Александровна отвечала за дизайн сайта. Она занималась разработкой концепции визуального оформления: подбирала цвета, шрифты и иконки, а также придумывала тексты для заполнения сайта. Ее работа была направлена на создание гармоничного и привлекательного интерфейса, который бы не только радовал глаз, но и способствовал легкому восприятию информации. 
-            Сайт "Сайт без вести пропавших" был создан в рамках учебного процесса на кафедре МГТУ МТКП им. Н.Э. Баумана, в специальности 09.02.07 "Информационные системы и программирование", группа ТИП-52.</p>
-        </div>
-  
-  
-      </article>
-  
-      <article class="articles">
-        <div class="divblock">
-          <h2 class="Titels">Чо-то ещё</h2>
-          <p class="maintext">
-            Упаев Александр Юлианович занимался бэкенд-разработкой. Он использовал фреймворк Flask для создания серверной части сайта, подключил базу данных DB SQLite и обеспечил функциональность авторизации и регистрации пользователей. Александр реализовал систему ограничения прав доступа, что позволяет защитить данные от случайных изменений другими пользователями. Он также разработал функционал отправки сообщений на почтовые адреса и хэширования паролей, что повышает безопасность пользователей. Важной частью работы Александра стало хранение информации, которую вносят пользователи, включая даты и фотографии. Эти данные были зашифрованы в текстовые файлы, которые впоследствии можно дешифровать и отображать на сайте.
+        <blockquote class="colorful-quote">
+          <p class="maintext" style="font-size: 16px">
+            "Мы убеждены, что наш проект может оказать реальную помощь в решении
+            этой важной социальной проблемы, и надеемся, что он станет полезным
+            ресурсом для всех, кто ищет своих близких."
           </p>
-        </div>
+          <p class="cit">POTERYSHKI.team</p>
+          <p></p>
+        </blockquote>
       </article>
     </div>
-
   </div>
-    
-  
 
   <div class="bottmcontent bg-black text-white">
-      <div class="col-1">
-        <div>
-        <h4 class="text-white"><strong>Наши соцсети</strong></h4>  
-        <div class="icon_place">
-         
-          <div class="soc_png_place">
-            <img class="soc_png" src="{{ url_for('static', filename='image/ds.png')}}" alt="ds">
-          </div>
+    <div class="col-1"></div>
 
-          <div class="soc_png_place">
-            <img class="soc_png" src="{{ url_for('static', filename='image/tg.png')}}" alt="tg">
-          </div>
-
-          <div class="soc_png_place">
-            <img class="soc_png" src="{{ url_for('static', filename='image/wk.png')}}" alt="wk">
-          </div>  
-        </div>  
-        </div>
-      </div>
-
-      <div class="col-2">
-        <h3 class="text-white"><strong>Заголовок 1</strong></h3>
-        <p>akfifnvlsjdf,jhlvhsd,tknhsvdnjfalinaekrhfvfauiaervnhfiuierhn,fuhsdfu</p>
-      </div>
+    <div class="col-2"></div>
   </div>
 
+  <script>
+    let bg = document.querySelector(".volontir_main_name");
+    window.addEventListener("mousemove", function (e) {
+      let x = e.clientX / window.innerWidth;
+      let y = e.clientY / window.innerHeight;
+      bg.style.transform = "translate(-" + x * 15 + "px, -" + y * 15 + "px)";
+    });
+  </script>
 </section>
 
 {% endblock %}

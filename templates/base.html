@@ -10,23 +10,34 @@
 </head>
 <body>
 <div class="page">
-  <header class="main_nav d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 border-bottom">
-    <div class="col-md-3 mb-2 mb-md-0">
-      <a href="/" class="d-inline-flex link-body-emphasis text-decoration-none">
+  <header class="main_nav">
+
+
+    <div class="heder_img_place">
+      <a href="/" class="">
         <img class="header_img" src="{{ url_for('static', filename='image/map-marker.png')}}" alt="map">
       </a>
+
+      <p class="header_titel">
+        POTERYSHKI
+      </p>
     </div>
 
-    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-      <li><a href="{{ url_for('index') }}" class="nav-link px-2 link-secondary">Главная</a></li>
-      <li><a href="{{ url_for('spisock') }}" class="nav-link px-2">Список пропавших</a></li>
-      <li><a href="{{ url_for('zayavka') }}" class="nav-link px-2">Подать заявку</a></li>
-    </ul>
+    <div class="heder_other">
 
-    <div class="col-md-3 text-end">
-      <a href="{{ url_for('login') }}" class="btn btn-dark">Войти</a>
-      <a href="{{ url_for('register') }}" class="btn btn-dark">Зарегистрироваться</a>
+      <ul class="nav">
+        <li><a href="{{ url_for('index') }}" class="nav-link">Главная</a></li>
+        <li><a href="{{ url_for('spisock') }}" class="nav-link px-2">Список пропавших</a></li>
+        <li><a href="{{ url_for('zayavka') }}" class="nav-link px-2">Подать заявку</a></li>
+      </ul>
+
+      <div class="header_btn_place">
+        <a href="{{ url_for('login') }}" class="btn">Войти</a>
+        <a href="{{ url_for('register') }}" class="btn">Зарегистрироваться</a>
+      </div>
+
     </div>
+    
   </header>
   <div class="content">
        {% block content %}{% endblock %}
