@@ -9,21 +9,10 @@
 <body>
     <div class="container">
         <h1>Отправить сообщение</h1>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="flash-{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
         <form method="POST" action="{{ url_for('message', midding_id=midding_id) }}">
             <div class="form-group">
                 <label for="text">Текст сообщения:</label>
-                <textarea name="text" id="text" rows="4" class="form-control" placeholder="Введите текст сообщения"></textarea>
+                <textarea name="text" id="text" rows="4" class="form-control" placeholder="Введите текст сообщения" required>{{ text_message }}</textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">Отправить</button>

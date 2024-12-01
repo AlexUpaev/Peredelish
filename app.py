@@ -1,36 +1,28 @@
 import base64
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, login_required, UserMixin, current_user
+from flask_sqlalchemy import SQLAlchemy  # type: ignore
+from flask_login import LoginManager, login_user, login_required, UserMixin
 from flask_mail import Mail, Message
-from werkzeug.security import generate_password_hash, check_password_hash
-from dotenv import load_dotenv
 import os
-
-# Загружаем переменные окружения из .env файла
-load_dotenv()
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
-# Настройки базы данных
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-
-# Настройки Gmail
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'alexupaew@gmail.com'
+app.config['MAIL_PASSWORD'] = 'Upaychik16212005'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 
 mail = Mail(app)
+
+db = SQLAlchemy(app)
+login_manager = LoginManager(app)
 
 
 # Модель пользователя
@@ -88,13 +80,14 @@ class Application(db.Model):
 # Модель сообщения
 class M_Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    Text = db.Column(db.Text, nullable=False)
+    Text_Message = db.Column(db.Text, nullable=False)
     DataOfDispatch = db.Column(db.Date, nullable=False)
     TimeOfDispatch = db.Column(db.Time, nullable=False)
     FromWhom = db.Column(db.String(60), nullable=False)
     Whom = db.Column(db.String(60), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+
 
 # Инициализация базы данных
 with app.app_context():
@@ -164,7 +157,6 @@ def register():
 
     return render_template('register.html')
 
-
 # Маршрут для добавления волонтера
 from flask_login import current_user
 
@@ -214,6 +206,7 @@ def spisock():
     return render_template('spisock.html', posts=posts)
 
 
+
 @app.route("/update_status/<int:post_id>", methods=['POST'])
 @login_required
 def update_status(post_id):
@@ -227,10 +220,6 @@ def update_status(post_id):
         try:
             db.session.commit()  # Сохраняем изменения в БД
             flash('Статус успешно обновлён!', 'success')
-
-            # Если выбран статус "Обнаружен", перенаправляем на страницу сообщений
-            if new_status == "Обнаружен":
-                return redirect(url_for('message', midding_id=post_id))
         except Exception as e:
             db.session.rollback()
             flash(f'Ошибка при обновлении статуса: {str(e)}', 'danger')
@@ -238,9 +227,7 @@ def update_status(post_id):
     else:
         flash('Пропавший не найден.', 'danger')
 
-    return redirect(url_for('spisock'))  # Возврат к списку пропавших, если статус не "Обнаружен"
-
-
+    return redirect(url_for('spisock'))  # Возврат к списку пропавших
 
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
@@ -295,7 +282,7 @@ def zayavka():
 
             flash("Заявка и запись поиска успешно добавлены!", "success")
             return redirect('/')
-
+        
         except Exception as e:
             db.session.rollback()
             flash(f'При добавлении заявки произошла ошибка: {str(e)}', 'danger')
@@ -303,71 +290,76 @@ def zayavka():
     else:
         return render_template('zayavka.html')
 
-@app.route('/message/<int:midding_id>', methods=['GET', 'POST'])
+@app.route("/message/<int:midding_id>", methods=['GET', 'POST'])
+@login_required
 def message(midding_id):
-    if not current_user.is_authenticated:  # Проверка, аутентифицирован ли пользователь
-        flash('Пожалуйста, войдите в систему для отправки сообщения.', 'danger')
-        return redirect(url_for('login'))  # Перенаправление на страницу входа
-
     if request.method == 'POST':
-        text = request.form.get('text')
-        if text:
-            # Получение текущего пользователя
-            user_id = current_user.id
-            volunteer_id = current_user.volunteers[0].id if current_user.volunteers else None
+        try:
+            # Данные из формы
+            text = request.form.get('Text')
+            data_of_dispatch = datetime.now().date()
+            time_of_dispatch = datetime.now().time()
 
-            now = datetime.now()
-            date_of_dispatch = now.date()
-            time_of_dispatch = now.time()
+            # Проверка заявки
+            application = Application.query.filter_by(midding_id=midding_id).first()
+            if not application:
+                flash('Заявка на пропавшего не найдена', 'danger')
+                return redirect(url_for('spisock'))
 
+            # Получение данных пользователя и волонтёра
+            applicant_user = Us_user.query.get(application.user_id)
+            if not applicant_user:
+                flash('Пользователь, оставивший заявку, не найден', 'danger')
+                return redirect(url_for('spisock'))
+
+            volunteer = Volunteer.query.filter_by(user_id=current_user.id).first()
+            if not volunteer:
+                flash('Текущий пользователь не является волонтёром', 'danger')
+                return redirect(url_for('spisock'))
+
+            # Создание сообщения
+            new_message = Message(
+                subject="Сообщение от волонтёра",
+                recipients=[applicant_user.Email],  # Почта получателя
+                body=f"Здравствуйте, {applicant_user.Surname} {applicant_user.N_name}!\n\n"
+                     f"Вам поступило сообщение от волонтёра {current_user.Surname} {current_user.N_name}.\n\n"
+                     f"Текст сообщения: {text}\n\n"
+                     f"Дата отправки: {data_of_dispatch}\nВремя: {time_of_dispatch}",
+            )
+
+            # Отправка сообщения
             try:
-                # Получаем всех пользователей, оставивших заявку на пропавшего
-                missing_person = Midding.query.get(midding_id)
-                applicants = missing_person.applications
-
-                if applicants:
-                    for applicant in applicants:
-                        new_message = M_Message(
-                            Text=text,
-                            DataOfDispatch=date_of_dispatch,
-                            TimeOfDispatch=time_of_dispatch,
-                            FromWhom=current_user.Email,
-                            Whom=applicant.application_user.Email,
-                            user_id=applicant.application_user.id,
-                            volunteer_id=volunteer_id
-                        )
-
-                        db.session.add(new_message)
-                        db.session.commit()
-
-                        # Отправка email-сообщения получателю
-                        email_msg = Message(
-                            'Новое сообщение от волонтера',
-                            recipients=[applicant.application_user.Email],
-                            sender=str(current_user.Email)
-                        )
-                        email_msg.body = text
-                        try:
-                            mail.send(email_msg)
-                        except Exception as e:
-                            error_message = str(e)
-                            if "[Errno 11001] getaddrinfo failed" in error_message:
-                                flash('Ошибка сети: не удается разрешить адрес. Проверьте подключение к интернету.', 'danger')
-                            elif "530, b'5.7.0 Authentication Required" in error_message:
-                                flash('Ошибка аутентификации: проверьте настройки аутентификации почты.', 'danger')
-                            else:
-                                flash(f'Произошла ошибка при отправке сообщения: {error_message}', 'danger')
-
+                mail.send(new_message)
             except Exception as e:
                 db.session.rollback()
-                flash(f'Произошла ошибка при отправке сообщения: {str(e)}', 'danger')
-        else:
-            flash('Введите текст сообщения', 'danger')
+                flash(f'Ошибка отправки сообщения: {str(e)}', 'danger')
+                return redirect(url_for('index'))  # Возврат на главную страницу в случае ошибки
+
+            # Сохранение в базе данных
+            message_record = M_Message(
+                Text_Message=text,
+                DataOfDispatch=data_of_dispatch,
+                TimeOfDispatch=time_of_dispatch,
+                FromWhom=current_user.Email,
+                Whom=applicant_user.Email,
+                user_id=applicant_user.id,
+                volunteer_id=volunteer.id
+            )
+            db.session.add(message_record)
+            db.session.commit()
+
+            flash('Сообщение отправлено!', 'success')
+            return redirect(url_for('index'))
+
+        except Exception as e:
+            db.session.rollback()
+            flash('Произошла ошибка при отправке сообщения: ' + str(e), 'danger')
 
     return render_template('message.html', midding_id=midding_id)
 
 @app.after_request
 def redirect_to_signin(response):
+    
     if response.status_code == 401:
         return redirect(url_for('login', next=request.url))
     
@@ -378,3 +370,4 @@ if __name__ == "__main__":
         db.create_all()  # Создание таблиц, если их еще нет
     app.run(debug=True)
 
+#SNTP
