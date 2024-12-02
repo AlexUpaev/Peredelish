@@ -1,22 +1,19 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Отправить сообщение</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+Создание сообщения
+{% endblock %}
+
+{% block content %}
     <div class="container">
-        <h1>Отправить сообщение</h1>
+        <h1>Создание сообщения</h1>
         <form method="POST" action="{{ url_for('message', midding_id=midding_id) }}">
             <div class="form-group">
                 <label for="text">Текст сообщения:</label>
-                <textarea name="text" id="text" rows="4" class="form-control" placeholder="Введите текст сообщения" required>{{ text_message }}</textarea>
+                <textarea name="text" id="text" rows="4" class="form-control" placeholder="Введите текст сообщения"></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">Отправить</button>
         </form>
     </div>
-</body>
-</html>
+{% endblock %}

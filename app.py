@@ -12,15 +12,6 @@ app.secret_key = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///poteryashki.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'alexupaew@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Upaychik16212005'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-
-mail = Mail(app)
-
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 
@@ -205,30 +196,6 @@ def spisock():
     posts = Midding.query.all()
     return render_template('spisock.html', posts=posts)
 
-
-
-@app.route("/update_status/<int:post_id>", methods=['POST'])
-@login_required
-def update_status(post_id):
-    new_status = request.form.get('status')
-    print(f'Обновляем статус для поста {post_id}: {new_status}')  # Логирование нового статуса
-
-    post = Midding.query.get(post_id)
-
-    if post:
-        post.Status = new_status  # Обновляем статус
-        try:
-            db.session.commit()  # Сохраняем изменения в БД
-            flash('Статус успешно обновлён!', 'success')
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Ошибка при обновлении статуса: {str(e)}', 'danger')
-            print(f'Ошибка базы данных: {str(e)}')  # Логирование ошибки
-    else:
-        flash('Пропавший не найден.', 'danger')
-
-    return redirect(url_for('spisock'))  # Возврат к списку пропавших
-
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
 @login_required
@@ -290,6 +257,31 @@ def zayavka():
     else:
         return render_template('zayavka.html')
 
+@app.route("/update_status/<int:post_id>", methods=['POST'])
+@login_required
+def update_status(post_id):
+    new_status = request.form.get('status')
+    print(f'Обновляем статус для поста {post_id}: {new_status}')  # Логирование нового статуса
+
+    post = Midding.query.get(post_id)
+
+    if post:
+        post.Status = new_status  # Обновляем статус
+        try:
+            db.session.commit()  # Сохраняем изменения в БД
+            flash('Статус успешно обновлён!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении статуса: {str(e)}', 'danger')
+            print(f'Ошибка базы данных: {str(e)}')  # Логирование ошибки
+    else:
+        flash('Пропавший не найден.', 'danger')
+
+    if new_status == 'Обнаружен':
+        return redirect(url_for('message', midding_id=post_id))
+    else:
+        return redirect(url_for('spisock'))  # Возврат к списку пропавших
+
 @app.route("/message/<int:midding_id>", methods=['GET', 'POST'])
 @login_required
 def message(midding_id):
@@ -316,25 +308,7 @@ def message(midding_id):
             if not volunteer:
                 flash('Текущий пользователь не является волонтёром', 'danger')
                 return redirect(url_for('spisock'))
-
-            # Создание сообщения
-            new_message = Message(
-                subject="Сообщение от волонтёра",
-                recipients=[applicant_user.Email],  # Почта получателя
-                body=f"Здравствуйте, {applicant_user.Surname} {applicant_user.N_name}!\n\n"
-                     f"Вам поступило сообщение от волонтёра {current_user.Surname} {current_user.N_name}.\n\n"
-                     f"Текст сообщения: {text}\n\n"
-                     f"Дата отправки: {data_of_dispatch}\nВремя: {time_of_dispatch}",
-            )
-
-            # Отправка сообщения
-            try:
-                mail.send(new_message)
-            except Exception as e:
-                db.session.rollback()
-                flash(f'Ошибка отправки сообщения: {str(e)}', 'danger')
-                return redirect(url_for('index'))  # Возврат на главную страницу в случае ошибки
-
+            
             # Сохранение в базе данных
             message_record = M_Message(
                 Text_Message=text,
