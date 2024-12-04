@@ -9,106 +9,16 @@
         <h1>Регистрация Волонтера</h1>
         <form method="POST" class="registration-form">
             <div class="form-group">
-                <label for="experience">Опыт (Experience):</label>
+                <label for="experience">Опыт:</label>
                 <input type="text" id="experience" name="Experience" required class="form-control">
             </div>
 
             <div class="form-group">
-                <label for="contact">Контактная информация (Contact Information):</label>
-                <textarea id="contact" name="ContactInformation" required class="form-control"></textarea>
+                <label for="contact">Контактная информация:</label>
+                <textarea id="contact" name="ContactInformation" required class="form-control" rows="4"></textarea>
             </div>
 
             <button type="submit" class="btn-submit">Сохранить</button>
         </form>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="flash {{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
     </div>
-{% endblock %}
-
-{% block styles %}
-    <style>
-        .registration-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .registration-form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #555;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .btn-submit {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-submit:hover {
-            background-color: #45a049;
-        }
-
-        .flashes {
-            margin-top: 20px;
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .flash {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-
-        .flash.success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .flash.error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-    </style>
 {% endblock %}
