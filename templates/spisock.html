@@ -23,30 +23,43 @@
                     <p class="card-text"><small class="text-muted">Место последнего появления: {{ post.PlaceOfLastAppearance }}</small></p>
                 </div>
 
-            <div class="mb-3">
-                <label for="status" class="form-label">Статус поиска</label>
-                {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' and current_user.volunteers and current_user.volunteers[0].Interactions %}
-                    <!-- Форма для изменения статуса -->
-                    <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">
-                        <select id="status" name="status" class="form-select">
+                <div class="mb-3">
+                    <label for="status" class="form-label">Статус поиска</label>
+                    {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' %}
+                        <!-- Форма для изменения статуса -->
+                        <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">
+                            <select id="status" name="status" class="form-select">
+                                <option value="Никто не ищет" {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                                <option value="В поиске" {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                                <option value="Обнаружен" {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary mt-2">Обновить статус</button>
+                        </form>
+
+                        <!-- Форма для связывания волонтёра -->
+                        <form action="{{ url_for('toggle_volunteer_link', post_id=post.id) }}" method="POST">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="linkCheckbox{{ post.id }}" name="linked"
+                                       {% if post.is_linked %}checked{% endif %}>
+                                <label class="form-check-label" for="linkCheckbox{{ post.id }}">
+                                    Вступить в поисковую группу
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Сохранить</button>
+                        </form>
+                    {% else %}
+                        <!-- Только для отображения статуса, если пользователь не волонтёр -->
+                        <select id="status" name="status" class="form-select" disabled>
                             <option value="Никто не ищет" {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
                             <option value="В поиске" {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
                             <option value="Обнаружен" {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
                         </select>
-                        <button type="submit" class="btn btn-primary mt-2">Обновить статус</button>
-                    </form>
-                {% else %}
-                    <!-- Только для отображения статуса, если пользователь не волонтёр -->
-                    <select id="status" name="status" class="form-select" disabled>
-                        <option value="Никто не ищет" {% if post.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
-                        <option value="В поиске" {% if post.Status == "В поиске" %}selected{% endif %}>В поиске</option>
-                        <option value="Обнаружен" {% if post.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
-                    </select>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
+</section>
 
 {% endblock %}

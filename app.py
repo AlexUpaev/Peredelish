@@ -1,11 +1,12 @@
 import base64
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, redirect, flash
-from flask_sqlalchemy import SQLAlchemy  # type: ignore
+from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, UserMixin
-from flask_mail import Mail, Message
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+import re
+import logging
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -19,10 +20,10 @@ login_manager = LoginManager(app)
 # Модель пользователя
 class Us_user(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    N_name = db.Column(db.String(50), nullable=False)
-    Surname = db.Column(db.String(50), nullable=False)
+    N_name = db.Column(db.String(20), nullable=False)
+    Surname = db.Column(db.String(20), nullable=False)
     Email = db.Column(db.String(100), unique=True, nullable=False)
-    Password = db.Column(db.String(100), nullable=False)
+    Password = db.Column(db.String(16), nullable=False)
     Role = db.Column(db.String(50), nullable=False)
 
     # Связи с каскадным удалением
@@ -38,11 +39,9 @@ class Volunteer(db.Model):
     Interactions = db.Column(db.Boolean, nullable=False, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
 
-    # Связь с моделью Us_user
-    us_user = db.relationship('Us_user')  # Keep this without a backref
-
-    # Связи с каскадным удалением
+    us_user = db.relationship('Us_user') 
     messages = db.relationship('M_Message', backref='message_volunteer', lazy=True, cascade="all, delete-orphan")
+    poisk = db.relationship('Poisk', backref='poisk_volunteer', lazy=True, cascade="all, delete-orphan")
 
 # Модель пропавшего
 class Midding(db.Model):
@@ -61,6 +60,7 @@ class Midding(db.Model):
 
     # Связи с каскадным удалением
     applications = db.relationship('Application', backref='midding', lazy=True, cascade="all, delete-orphan")
+    poisk = db.relationship('Poisk', backref='midding', lazy=True, cascade="all, delete-orphan")
 
 # Модель заявки
 class Application(db.Model):
@@ -74,11 +74,15 @@ class M_Message(db.Model):
     Text_Message = db.Column(db.Text, nullable=False)
     DataOfDispatch = db.Column(db.Date, nullable=False)
     TimeOfDispatch = db.Column(db.Time, nullable=False)
-    FromWhom = db.Column(db.String(60), nullable=False)
-    Whom = db.Column(db.String(60), nullable=False)
+    FromWhom = db.Column(db.String(100), nullable=False)
+    Whom = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('us_user.id'), nullable=False)
     volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
 
+class Poisk(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    volunteer_id = db.Column(db.Integer, db.ForeignKey('volunteer.id'), nullable=False)
+    midding_id = db.Column(db.Integer, db.ForeignKey('midding.id'), nullable=False)
 
 # Инициализация базы данных
 with app.app_context():
@@ -113,17 +117,20 @@ def register():
     email = request.form.get('Email')
     password = request.form.get('Password')
     password2 = request.form.get('Password2')
-    
+
     if request.method == 'POST':
         # Проверка на пустые поля
-        if not (email and password and password2):
-            flash('Введите логин и пароль', 'danger')
+        if not (email and password and password2 and request.form.get('N_name') and request.form.get('Surname') and request.form.get('Role')):
+            flash('Заполните все поля', 'danger')
         # Проверка на совпадение паролей
         elif password != password2:
             flash('Пароли не совпадают', 'danger')
         # Проверка, существует ли email в базе данных
         elif Us_user.query.filter_by(Email=email).first():
             flash('Пользователь с таким email уже существует', 'danger')
+        # Проверка требований к паролю
+        elif not validate(password):
+            flash('Пароль должен содержать от 4 до 16 символов, включать заглавные буквы и цифры, и не содержать символов: * & { } | +', 'danger')
         else:
             # Хеширование пароля
             hash_pwd = generate_password_hash(password, method='pbkdf2:sha256')
@@ -139,7 +146,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             flash('Регистрация прошла успешно!', 'success')
-            
+
             # Перенаправление на страницу в зависимости от роли
             if role == 'Волонтёр':
                 return redirect(url_for('volunteer'))
@@ -147,6 +154,23 @@ def register():
                 return redirect(url_for('login'))
 
     return render_template('register.html')
+
+def validate(password):
+    Vozvrat = True  
+
+    if not (4 <= len(password) <= 16):
+        Vozvrat = False  
+
+    if re.search(r'[*&{}|+]', password):
+        Vozvrat = False  
+
+    if not re.search(r'[A-Z]', password):
+        Vozvrat = False  
+
+    if not re.search(r'\d', password):
+        Vozvrat = False  
+
+    return Vozvrat 
 
 # Маршрут для добавления волонтера
 from flask_login import current_user
@@ -189,11 +213,19 @@ def volunteer():
 def index():
     return render_template("index.html")
 
-# Список заявок
+# Список пропавших
 @app.route("/spisock")
 def spisock():
     db.session.expire_all()  # Обнуление кэша сессии
     posts = Midding.query.all()
+    for post in posts:
+        if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр':
+            post.is_linked = Poisk.query.filter_by(
+                volunteer_id=current_user.volunteers[0].id,
+                midding_id=post.id  # Здесь исправлено
+            ).first() is not None
+        else:
+            post.is_linked = False
     return render_template('spisock.html', posts=posts)
 
 # Создание заявки
@@ -257,6 +289,32 @@ def zayavka():
     else:
         return render_template('zayavka.html')
 
+@app.route('/toggle_volunteer_link/<int:post_id>', methods=['POST'])
+@login_required
+def toggle_volunteer_link(post_id):
+
+    volunteer_id = current_user.volunteers[0].id
+    linked = request.form.get('linked') == 'on'
+
+    # Найдите запись в таблице "Поиск"
+    link = Poisk.query.filter_by(volunteer_id=volunteer_id, midding_id=post_id).first()
+
+    if linked:
+        # Если связь не существует, создайте её
+        if not link:
+            new_link = Poisk(volunteer_id=volunteer_id, midding_id=post_id)
+            db.session.add(new_link)
+            db.session.commit()
+            flash('Связь добавлена.', 'success')
+    else:
+        # Если связь существует, удалите её
+        if link:
+            db.session.delete(link)
+            db.session.commit()
+            flash('Связь удалена.', 'success')
+
+    return redirect(url_for('spisock'))
+
 @app.route("/update_status/<int:post_id>", methods=['POST'])
 @login_required
 def update_status(post_id):
@@ -288,7 +346,7 @@ def message(midding_id):
     if request.method == 'POST':
         try:
             # Данные из формы
-            text = request.form.get('Text')
+            text = request.form.get('text')
             data_of_dispatch = datetime.now().date()
             time_of_dispatch = datetime.now().time()
 
@@ -331,17 +389,55 @@ def message(midding_id):
 
     return render_template('message.html', midding_id=midding_id)
 
+# Функции для извлечения данных из базы данных
+def get_users_data():
+    return Us_user.query.all()
+
+def get_volunteers_data():
+    return db.session.query(Volunteer, Us_user).join(Us_user, Volunteer.user_id == Us_user.id).all()
+
+
+def get_middings_data():
+    return Midding.query.all()
+
+def get_applications_data():
+    return Application.query.all()
+
+def get_messages_data():
+    return M_Message.query.all()
+
+def get_poisk_data():
+    return Poisk.query.all()
+
+@app.route("/database", methods=["GET"])
+@login_required
+def database():
+    table_name = request.args.get('table', 'users')  # Получаем имя таблицы из параметров запроса
+    allowed_tables = ['users', 'volunteers', 'middings', 'applications', 'messages', 'poisk']
+    
+    if table_name not in allowed_tables:  
+        table_name = 'users'  # Если выбранная таблица недопустима, устанавливаем значение по умолчанию
+
+    # Получаем данные из базы данных в зависимости от выбранной таблицы
+    data = {
+        'users': get_users_data(),
+        'volunteers': get_volunteers_data(),
+        'middings': get_middings_data(),
+        'applications': get_applications_data(),
+        'messages': get_messages_data(),
+        'poisk': get_poisk_data()
+    }
+
+    return render_template('database.html', table_name=table_name, data=data)
+
 @app.after_request
 def redirect_to_signin(response):
-    
     if response.status_code == 401:
         return redirect(url_for('login', next=request.url))
-    
+
     return response
 
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Создание таблиц, если их еще нет
     app.run(debug=True)
-
-#SNTP

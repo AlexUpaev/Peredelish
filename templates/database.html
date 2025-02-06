@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}База данных{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Данные из таблицы: {{ table_name }}</h2>
+
+    <!-- Форма для выбора таблицы -->
+    <form method="GET" action="{{ url_for('database') }}">
+        <div class="form-group">
+            <label for="table">Выберите таблицу:</label>
+            <select name="table" id="table" class="form-control" onchange="this.form.submit()">
+                <option value="users" {% if table_name == 'users' %}selected{% endif %}>Пользователи</option>
+                <option value="volunteers" {% if table_name == 'volunteers' %}selected{% endif %}>Волонтеры</option>
+                <option value="middings" {% if table_name == 'middings' %}selected{% endif %}>Пропавшие</option>
+                <option value="applications" {% if table_name == 'applications' %}selected{% endif %}>Заявки</option>
+                <option value="messages" {% if table_name == 'messages' %}selected{% endif %}>Сообщения</option>
+                <option value="poisk" {% if table_name == 'poisk' %}selected{% endif %}>Поиск</option>
+            </select>
+        </div>
+    </form>
+
+    {% if data[table_name] %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    {% if table_name == 'users' %}
+                        <th>ID</th>
+                        <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Роль</th>
+                    {% elif table_name == 'volunteers' %}
+                        <th>ID</th>
+                        <th>Фамилия имя</th>
+                        <th>Опыт</th>
+                        <th>Контактная информация</th>
+                        <th>ID пользователя</th>
+                    {% elif table_name == 'middings' %}
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Фамилия</th>
+                        <th>Дата рождения</th>
+                        <th>Пол</th>
+                        <th>Описание</th>
+                        <th>Дата последнего появления</th>
+                        <th>Место последнего появления</th>
+                        <th>Статус</th>
+                    {% elif table_name == 'applications' %}
+                        <th>ID</th>
+                        <th>Фамилия имя отправителя</th>
+                        <th>ФИО пропавшего</th>
+                        <th>ID пользователя</th>
+                        <th>ID пропавшего</th>
+                    {% elif table_name == 'messages' %}
+                        <th>ID</th>
+                        <th>Сообщение</th>
+                        <th>Дата отправки</th>
+                        <th>Время отправки</th>
+                        <th>От кого</th>
+                        <th>Кому</th>
+                    {% elif table_name == 'poisk' %}
+                        <th>ID</th>
+                        <th>Фамилия имя волонтёра</th>
+                        <th>ФИО пропавшего</th>
+                        <th>ID волонтера</th>
+                        <th>ID пропавшего</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in data[table_name] %}
+                    <tr>
+                        {% if table_name == 'users' %}
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.Surname }}</td>
+                            <td>{{ item.N_name }}</td>
+                            <td>{{ item.Email }}</td>
+                            <td>{{ item.Role }}</td>
+                        {% elif table_name == 'volunteers' %}
+                            <td>{{ item.Volunteer.id }}</td>
+                            <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
+                            <td>{{ item.Volunteer.Experience }}</td>
+                            <td>{{ item.Volunteer.ContactInformation }}</td>
+                            <td>{{ item.Volunteer.user_id }}</td>
+                        {% elif table_name == 'middings' %}
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.Name }}</td>
+                            <td>{{ item.Surname }}</td>
+                            <td>{{ item.DataOfBirth }}</td>
+                            <td>{{ item.Gender }}</td>
+                            <td>{{ item.Description }}</td>
+                            <td>{{ item.DataOfLastAppearance }}</td>
+                            <td>{{ item.PlaceOfLastAppearance }}</td>
+                            <td>{{ item.Status }}</td>
+                        {% elif table_name == 'applications' %}
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
+                            <td>{{ item.Midding.Name }} {{ item.Midding.Surname }} {{ item.Midding.Patronymic }}</td>
+                            <td>{{ item.user_id }}</td>
+                            <td>{{ item.midding_id }}</td>
+                        {% elif table_name == 'messages' %}
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.Text_Message }}</td>
+                            <td>{{ item.DataOfDispatch }}</td>
+                            <td>{{ item.TimeOfDispatch }}</td>
+                            <td>{{ item.FromWhom }}</td>
+                            <td>{{ item.Whom }}</td>
+                        {% elif table_name == 'poisk' %}
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.Volunteer.Us_user.Surname }} {{ item.Volunteer.Us_user.N_name }}</td>
+                            <td>{{ item.Midding.Name }} {{ item.Midding.Surname }} {{ item.Midding.Patronymic }}</td>
+                            <td>{{ item.volunteer_id }}</td>
+                            <td>{{ item.midding_id }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Нет данных для отображения.</p>
+    {% endif %}
+</div>
+{% endblock %}
