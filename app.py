@@ -1,8 +1,9 @@
 import base64
 from datetime import datetime
-from flask import Flask, render_template, url_for, request, redirect, flash
+from flask import Flask, render_template, url_for, request, redirect, flash, abort
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, login_user, login_required, UserMixin
+from sqlalchemy import func, exc
+from flask_login import LoginManager, login_user, login_required, UserMixin, logout_user
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 import re
@@ -114,13 +115,20 @@ def login():
 
 @app.route("/register", methods=['POST', 'GET'])
 def register():
+    # Проверяем, авторизован ли пользователь
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))  # Перенаправление на главную страницу
+
     email = request.form.get('Email')
     password = request.form.get('Password')
     password2 = request.form.get('Password2')
+    name = request.form.get('Name')
+    surname = request.form.get('Surname')
+    role = request.form.get('Role')
 
     if request.method == 'POST':
         # Проверка на пустые поля
-        if not (email and password and password2 and request.form.get('N_name') and request.form.get('Surname') and request.form.get('Role')):
+        if not (email and password and password2 and name and surname and role):
             flash('Заполните все поля', 'danger')
         # Проверка на совпадение паролей
         elif password != password2:
@@ -134,10 +142,9 @@ def register():
         else:
             # Хеширование пароля
             hash_pwd = generate_password_hash(password, method='pbkdf2:sha256')
-            role = request.form.get('Role')
             new_user = Us_user(
-                N_name=request.form['N_name'],
-                Surname=request.form['Surname'],
+                N_name=name,
+                Surname=surname,
                 Email=email,
                 Password=hash_pwd,
                 Role=role
@@ -213,20 +220,28 @@ def volunteer():
 def index():
     return render_template("index.html")
 
-# Список пропавших
 @app.route("/spisock")
 def spisock():
     db.session.expire_all()  # Обнуление кэша сессии
     posts = Midding.query.all()
+
+    # Подсчет количества пропавших
+    midding_count = len(posts)
+
     for post in posts:
-        if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр':
-            post.is_linked = Poisk.query.filter_by(
-                volunteer_id=current_user.volunteers[0].id,
-                midding_id=post.id  # Здесь исправлено
-            ).first() is not None
-        else:
-            post.is_linked = False
-    return render_template('spisock.html', posts=posts)
+        post.is_linked = Poisk.query.filter_by(
+            midding_id=post.id
+        ).first() is not None
+
+    return render_template('spisock.html', posts=posts, midding_count=midding_count)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Вы вышли из аккаунта', 'success')
+    return redirect(url_for('index'))
+
 
 # Создание заявки
 @app.route("/zayavka", methods=['POST', 'GET'])
@@ -401,34 +416,90 @@ def get_middings_data():
     return Midding.query.all()
 
 def get_applications_data():
-    return Application.query.all()
+    return db.session.query(Application, Us_user, Midding).\
+    join(Us_user, Application.user_id == Us_user.id).\
+    join(Midding, Application.midding_id == Midding.id).\
+    all()
 
 def get_messages_data():
     return M_Message.query.all()
 
 def get_poisk_data():
-    return Poisk.query.all()
+    return db.session.query(Poisk, Midding, Volunteer).\
+    join(Volunteer, Poisk.volunteer_id == Volunteer.id).\
+    join(Midding, Poisk.midding_id == Midding.id).\
+    all()
+
+def get_user_counts():
+    counts = {}
+    result = db.session.query(Us_user.Role, func.count(Us_user.id)).group_by(Us_user.Role).all()
+    for role, count in result:
+        counts[role] = count
+    return counts
 
 @app.route("/database", methods=["GET"])
 @login_required
 def database():
-    table_name = request.args.get('table', 'users')  # Получаем имя таблицы из параметров запроса
-    allowed_tables = ['users', 'volunteers', 'middings', 'applications', 'messages', 'poisk']
+    table_name = request.args.get('table', 'users')
+    search_query = request.args.get('search', '')  # Получаем поисковый запрос
+    allowed_tables = ['users', 'volunteers', 'middings', 'applications', 'messages', 'poisk', 'user_count']
     
-    if table_name not in allowed_tables:  
-        table_name = 'users'  # Если выбранная таблица недопустима, устанавливаем значение по умолчанию
+    if table_name not in allowed_tables:
+        table_name = 'users'
 
-    # Получаем данные из базы данных в зависимости от выбранной таблицы
+    # Получаем данные из базы данных
     data = {
         'users': get_users_data(),
         'volunteers': get_volunteers_data(),
         'middings': get_middings_data(),
         'applications': get_applications_data(),
         'messages': get_messages_data(),
-        'poisk': get_poisk_data()
+        'poisk': get_poisk_data(),
     }
 
-    return render_template('database.html', table_name=table_name, data=data)
+    user_counts = get_user_counts()  # Получаем подсчет пользователей
+
+    return render_template('database.html', table_name=table_name, data=data, user_counts=user_counts, search_query=search_query)
+
+@app.route("/delete_data/<table>/<int:id>", methods=["POST"])
+@login_required
+def delete_data(table, id):
+    # Сопоставление таблиц с моделями
+    model_mapping = {
+        'users': Us_user,  # Модель пользователей
+        'middings': Midding  # Добавляем модель для middings
+    }
+    
+    # Получаем модель на основе имени таблицы
+    model = model_mapping.get(table)
+    
+    if model:
+        record = model.query.get(id)  # Получаем запись по ID
+        if record:
+            # Если удаляем пользователя, также удаляем связанные записи о пропавших через заявки
+            if table == 'users':
+                applications = Application.query.filter_by(user_id=id).all()
+                for application in applications:
+                    if application.midding:
+                        db.session.delete(application.midding)  # Удаляем пропавшего
+                    db.session.delete(application)  # Удаляем заявку
+
+            # Если удаляем пропавшего, удаляем все заявки, связанные с этим пропавшим
+            elif table in ['missing', 'middings']:  # Обработка для пропавших
+                applications = Application.query.filter_by(midding_id=id).all()
+                for application in applications:
+                    db.session.delete(application)  # Удаляем заявку, связанную с пропавшим
+            
+            # Удаляем саму запись (пользователя или пропавшего)
+            db.session.delete(record)
+            db.session.commit()  # Фиксируем изменения
+            flash(f'{table.capitalize()} успешно удален!', 'success')
+        else:
+            flash(f'{table.capitalize()} не найден!', 'error')
+    else:
+        flash('Недопустимая таблица!', 'error')
+
+    return redirect(url_for('database'))  # Перенаправление на страницу базы данных
 
 @app.after_request
 def redirect_to_signin(response):

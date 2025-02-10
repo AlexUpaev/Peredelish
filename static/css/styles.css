@@ -568,3 +568,32 @@ label {
   background-color: rgb(193, 95, 34);
   transform: translateY(-2px);
 }
+
+/* Стили БД */
+table {
+  width: 100%; /* Ширина таблицы */
+  border-collapse: collapse; /* Убираем двойные границы */
+}
+
+th, td {
+  border: 1px solid #ccc; /* Границы ячеек */
+  padding: 10px; /* Отступы внутри ячеек */
+  text-align: left; /* Выравнивание текста */
+}
+
+.scrollable-text {
+  word-wrap: break-word; /* Позволяет переносить слова */
+  white-space: normal; /* Разрешает перенос строк */
+}
+
+.highlighted {
+  background-color: yellow; /* Цвет подсветки */
+  font-weight: bold; /* Жирный шрифт для выделения */
+}
+
+
+
+
+
+
+

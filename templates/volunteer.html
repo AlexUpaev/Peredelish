@@ -14,11 +14,12 @@
             </div>
 
             <div class="form-group">
-                <label for="contact">Контактная информация:</label>
-                <textarea id="contact" name="ContactInformation" required class="form-control" rows="4"></textarea>
+                <label for="phone">Контактный номер:</label>
+                <input type="text" id="phone" name="ContactInformation" required class="form-control" placeholder="+7(***)-***-**-**">
             </div>
 
             <button type="submit" class="btn-submit">Сохранить</button>
         </form>
     </div>
+    <script src="{{ url_for('static', filename='js/maska.js') }}"></script>
 {% endblock %}

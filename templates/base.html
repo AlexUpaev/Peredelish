@@ -22,11 +22,17 @@
         <li><a href="{{ url_for('index') }}" class="nav-link">Главная</a></li>
         <li><a href="{{ url_for('spisock') }}" class="nav-link px-2">Список пропавших</a></li>
         <li><a href="{{ url_for('zayavka') }}" class="nav-link px-2">Подать заявку</a></li>
-        <li><a href="{{ url_for('database') }}" class="nav-link px-2">База данных</a></li>
+        {% if current_user.is_authenticated and current_user.Role.lower() in ['администратор', 'оператор'] %}
+          <li><a href="{{ url_for('database') }}" class="nav-link px-2">База данных</a></li>
+        {% endif %}
       </ul>
       <div class="header_btn_place">
-        <a href="{{ url_for('login') }}" class="btn">Войти</a>
-        <a href="{{ url_for('register') }}" class="btn">Зарегистрироваться</a>
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('logout') }}" class="btn">Выйти</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="btn">Войти</a>
+          <a href="{{ url_for('register') }}" class="btn">Зарегистрироваться</a>
+        {% endif %}
       </div>
     </div>
   </header>

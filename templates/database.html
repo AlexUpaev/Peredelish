@@ -6,7 +6,6 @@
 <div class="container mt-4">
     <h2>Данные из таблицы: {{ table_name }}</h2>
 
-    <!-- Форма для выбора таблицы -->
     <form method="GET" action="{{ url_for('database') }}">
         <div class="form-group">
             <label for="table">Выберите таблицу:</label>
@@ -17,12 +16,17 @@
                 <option value="applications" {% if table_name == 'applications' %}selected{% endif %}>Заявки</option>
                 <option value="messages" {% if table_name == 'messages' %}selected{% endif %}>Сообщения</option>
                 <option value="poisk" {% if table_name == 'poisk' %}selected{% endif %}>Поиск</option>
+                <option value="user_count" {% if table_name == 'user_count' %}selected{% endif %}>Количество пользователей</option>
             </select>
+        </div>
+        <div class="form-group">
+            <label for="search">Поиск:</label>
+            <input type="text" id="search" name="search" class="form-control" value="{{ search_query }}" oninput="highlightMatches(this.value)">
         </div>
     </form>
 
-    {% if data[table_name] %}
-        <table class="table table-striped">
+    {% if (table_name in data and data[table_name]) or table_name == 'user_count' %}
+        <table class="table table-striped mt-4">
             <thead>
                 <tr>
                     {% if table_name == 'users' %}
@@ -31,28 +35,42 @@
                         <th>Имя</th>
                         <th>Email</th>
                         <th>Роль</th>
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
                     {% elif table_name == 'volunteers' %}
                         <th>ID</th>
                         <th>Фамилия имя</th>
                         <th>Опыт</th>
-                        <th>Контактная информация</th>
+                        <th>Контактный номер</th>
+                        <th>Возможность взаимодействия</th>
                         <th>ID пользователя</th>
-                    {% elif table_name == 'middings' %}
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
+                        {% elif table_name == 'middings' %}
                         <th>ID</th>
-                        <th>Имя</th>
                         <th>Фамилия</th>
+                        <th>Имя</th>
+                        <th>Отчество</th>
                         <th>Дата рождения</th>
                         <th>Пол</th>
                         <th>Описание</th>
                         <th>Дата последнего появления</th>
                         <th>Место последнего появления</th>
                         <th>Статус</th>
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
                     {% elif table_name == 'applications' %}
                         <th>ID</th>
                         <th>Фамилия имя отправителя</th>
                         <th>ФИО пропавшего</th>
                         <th>ID пользователя</th>
                         <th>ID пропавшего</th>
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
                     {% elif table_name == 'messages' %}
                         <th>ID</th>
                         <th>Сообщение</th>
@@ -60,17 +78,36 @@
                         <th>Время отправки</th>
                         <th>От кого</th>
                         <th>Кому</th>
+                        <th>ID волонтера</th>
+                        <th>ID пользователя</th>
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
                     {% elif table_name == 'poisk' %}
                         <th>ID</th>
                         <th>Фамилия имя волонтёра</th>
                         <th>ФИО пропавшего</th>
                         <th>ID волонтера</th>
                         <th>ID пропавшего</th>
+                        {% if current_user.Role.lower() == 'администратор' %}
+                            <th>Действия</th>
+                        {% endif %}
+                    {% elif table_name == 'user_count' %}
+                        <th>Роль</th>
+                        <th>Количество</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for item in data[table_name] %}
+                {% if table_name == 'user_count' %}
+                    {% for role, count in user_counts.items() %}
+                        <tr>
+                            <td>{{ role }}</td>
+                            <td>{{ count }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for item in data[table_name] %}
                     <tr>
                         {% if table_name == 'users' %}
                             <td>{{ item.id }}</td>
@@ -78,28 +115,50 @@
                             <td>{{ item.N_name }}</td>
                             <td>{{ item.Email }}</td>
                             <td>{{ item.Role }}</td>
-                        {% elif table_name == 'volunteers' %}
+                            <td>
+                                {% if current_user.Role.lower() == 'администратор' %}
+                                    <a href="{{ url_for('edit_user', user_id=item.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                                    <form method="POST" action="{{ url_for('delete_data', table=table_name, id=item.id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            {% elif table_name == 'volunteers' %}
                             <td>{{ item.Volunteer.id }}</td>
                             <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
                             <td>{{ item.Volunteer.Experience }}</td>
                             <td>{{ item.Volunteer.ContactInformation }}</td>
+                            <td>{{ item.Volunteer.Interactions }}</td>
                             <td>{{ item.Volunteer.user_id }}</td>
+                            {% if current_user.Role.lower() == 'администратор' %}
+
+                            {% endif %}
                         {% elif table_name == 'middings' %}
                             <td>{{ item.id }}</td>
-                            <td>{{ item.Name }}</td>
                             <td>{{ item.Surname }}</td>
+                            <td>{{ item.Name }}</td>
+                            <td>{{ item.Patronymic }}</td>
                             <td>{{ item.DataOfBirth }}</td>
                             <td>{{ item.Gender }}</td>
-                            <td>{{ item.Description }}</td>
+                            <td class="scrollable-text">{{ item.Description }}</td>
                             <td>{{ item.DataOfLastAppearance }}</td>
-                            <td>{{ item.PlaceOfLastAppearance }}</td>
+                            <td class="scrollable-text">{{ item.PlaceOfLastAppearance }}</td>
                             <td>{{ item.Status }}</td>
+                            {% if current_user.Role.lower() == 'администратор' %}
+                                <td>
+                                    <form method="POST" action="{{ url_for('delete_data', table=table_name, id=item.id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                    </form>
+                                </td>
+                            {% endif %}
                         {% elif table_name == 'applications' %}
-                            <td>{{ item.id }}</td>
+                            <td>{{ item.Application.id }}</td>
                             <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
-                            <td>{{ item.Midding.Name }} {{ item.Midding.Surname }} {{ item.Midding.Patronymic }}</td>
-                            <td>{{ item.user_id }}</td>
-                            <td>{{ item.midding_id }}</td>
+                            <td>{{ item.Midding.Surname }} {{ item.Midding.Name }} {{ item.Midding.Patronymic }}</td>
+                            <td>{{ item.Application.user_id }}</td>
+                            <td>{{ item.Application.midding_id }}</td>
+                            {% if current_user.Role.lower() == 'администратор' %}
+                            {% endif %}
                         {% elif table_name == 'messages' %}
                             <td>{{ item.id }}</td>
                             <td>{{ item.Text_Message }}</td>
@@ -107,19 +166,29 @@
                             <td>{{ item.TimeOfDispatch }}</td>
                             <td>{{ item.FromWhom }}</td>
                             <td>{{ item.Whom }}</td>
-                        {% elif table_name == 'poisk' %}
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.Volunteer.Us_user.Surname }} {{ item.Volunteer.Us_user.N_name }}</td>
-                            <td>{{ item.Midding.Name }} {{ item.Midding.Surname }} {{ item.Midding.Patronymic }}</td>
                             <td>{{ item.volunteer_id }}</td>
-                            <td>{{ item.midding_id }}</td>
+                            <td>{{ item.user_id }}</td>
+                            {% if current_user.Role.lower() == 'администратор' %}
+                            {% endif %}
+                        {% elif table_name == 'poisk' %}
+                            <td>{{ item[0].id }}</td>  <!-- Poisk -->
+                            <td>{{ item[2].us_user.Surname }} {{ item[2].us_user.N_name }}</td>
+                            <td>{{ item[1].Surname }} {{ item[1].Name }} {{ item[1].Patronymic }}</td>  <!-- Midding -->
+                            <td>{{ item[0].volunteer_id }}</td>
+                            <td>{{ item[0].midding_id }}</td>
+                            {% if current_user.Role.lower() == 'администратор' %}
+                            {% endif %}
                         {% endif %}
-                    </tr>
-                {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     {% else %}
-        <p>Нет данных для отображения.</p>
+        <p class="mt-4">Нет данных для отображения.</p>
     {% endif %}
 </div>
+
+<script src="{{ url_for('static', filename='js/database.js') }}"></script>
 {% endblock %}
+

@@ -6,6 +6,7 @@
 
 {% block content %}
 <h1>Списки пропавших</h1>
+<h2 style="text-align: center;">Количество пропавших: {{ midding_count }}</h2>
 
 <section class="spisock_main">
     <div class="cardsection row mb-gutters">
@@ -26,6 +27,7 @@
                 <div class="mb-3">
                     <label for="status" class="form-label">Статус поиска</label>
                     {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' %}
+                        {% set Interactions = True %}
                         <!-- Форма для изменения статуса -->
                         <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">
                             <select id="status" name="status" class="form-select">
