@@ -501,6 +501,35 @@ def delete_data(table, id):
 
     return redirect(url_for('database'))  # Перенаправление на страницу базы данных
 
+# Редактирование пользователя
+@app.route("/edit_user/<int:user_id>", methods=['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    user = Us_user.query.get_or_404(user_id)  # Получаем пользователя по ID
+
+    if request.method == 'POST':
+        # Обновляем данные пользователя
+        user.N_name = request.form.get('N_name')
+        user.Surname = request.form.get('Surname')
+        user.Email = request.form.get('Email')
+
+        # Проверяем, было ли введено значение пароля
+        password = request.form.get('Password')
+        if password:  # Если пароль введен, хешируем и обновляем
+            user.Password = generate_password_hash(password, method='pbkdf2:sha256')
+
+        user.Role = request.form.get('Role')
+
+        try:
+            db.session.commit()  # Сохраняем изменения
+            flash('Данные пользователя успешно обновлены!', 'success')
+            return redirect(url_for('database'))  # Перенаправление на страницу базы данных
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении данных: {str(e)}', 'danger')
+
+    return render_template('edit_user.html', user=user)  # Отображаем форму редактирования
+
 @app.after_request
 def redirect_to_signin(response):
     if response.status_code == 401:
