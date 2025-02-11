@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<h1>Списки пропавших</h1>
+<h1 style="font-size: 48px;">Списки пропавших</h1>
 <h2 style="text-align: center;">Количество пропавших: {{ midding_count }}</h2>
 
 <section class="spisock_main">
@@ -20,6 +20,7 @@
                     <h5 class="card-title">{{ post.Name }} {{ post.Surname }} {{ post.Patronymic }}</h5>
                     <p class="card-text">{{ post.Description }}</p>
                     <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
+                    <p class="card-text"><small class="text-muted">Пол: {{ post.Gender }}</small></p>
                     <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
                     <p class="card-text"><small class="text-muted">Место последнего появления: {{ post.PlaceOfLastAppearance }}</small></p>
                 </div>
@@ -41,8 +42,7 @@
                         <!-- Форма для связывания волонтёра -->
                         <form action="{{ url_for('toggle_volunteer_link', post_id=post.id) }}" method="POST">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="linkCheckbox{{ post.id }}" name="linked"
-                                       {% if post.is_linked %}checked{% endif %}>
+                                <input class="form-check-input" type="checkbox" id="linkCheckbox{{ post.id }}" name="linked" {% if post.is_linked %}checked{% endif %}>
                                 <label class="form-check-label" for="linkCheckbox{{ post.id }}">
                                     Вступить в поисковую группу
                                 </label>
@@ -65,3 +65,4 @@
 </section>
 
 {% endblock %}
+

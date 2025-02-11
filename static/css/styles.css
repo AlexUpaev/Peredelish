@@ -22,23 +22,23 @@ body {
 /* Стили хедера */
 
 .heder_img_place {
-  display: flex;
+  display: flex; /* Используем flexbox для выравнивания */
+  align-items: center; /* Центрируем по вертикали */
 }
 
 .header_img {
-  height: 7vh;
-  width: 7vh;
-  margin-left: 2vw;
-  background-color: rgb(193, 95, 34);
-  border: 0.2vw solid rgb(193, 95, 34);
-  border-radius: 100%;
+  height: 50px; /* Высота изображения */
+  width: 50px; /* Ширина изображения */
+  margin-right: 10px; /* Отступ справа от изображения */
 }
 
 .header_titel {
-  font-size: 20px;
-  margin-top: auto;
-  margin-bottom: auto;
-  margin-left: 5vh;
+  font-size: 24px; /* Размер шрифта */
+  font-weight: bold; /* Жирный шрифт */
+  color: rgb(255, 255, 255); /* Цвет текста */
+  margin: 0; /* Убираем отступы */
+  padding: 10px 20px; /* Отступы внутри элемента */
+  text-align: center; /* Центрируем текст */
 }
 
 .heder_other {
@@ -49,8 +49,10 @@ body {
   color: rgb(255, 255, 255);
   margin: 0vw 0.5vw;
 }
-.nav-link:hover {
-  color: rgb(193, 95, 34);
+
+.nav {
+  display: flex; /* Используем flexbox для навигации */
+  align-items: center; /* Центрируем элементы по вертикали */
 }
 
 .btn {
@@ -58,7 +60,9 @@ body {
   color: rgb(231, 231, 231);
   border: 0.5vh solid rgb(193, 95, 34);
   width: 21vh;
+  margin: 10px; /* Добавляем отступы со всех сторон */
 }
+
 .btn:hover {
   background-color: rgb(141, 72, 30);
   color: rgb(231, 231, 231);
@@ -410,28 +414,6 @@ body {
 @media (width < 1030px) {
   /* Стили хедера */
 
-  .heder_img_place {
-    display: flex;
-  }
-
-  .header_img {
-    height: 7vh;
-    width: 7vh;
-    margin-left: 2vw;
-    margin-top: auto;
-    margin-bottom: auto;
-    background-color: rgb(193, 95, 34);
-    border: 0.2vw solid rgb(193, 95, 34);
-    border-radius: 100%;
-  }
-
-  .header_titel {
-    font-size: 20px;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 5vh;
-  }
-
   .heder_other {
     display: block;
   }
@@ -448,7 +430,9 @@ body {
   }
 
   .header_btn_place {
-    padding-left: 3vw;
+    display: flex;
+    align-items: center; /* Центрируем элементы по вертикали */
+    margin-left: auto; /* Сдвигаем кнопки вправо */
   }
 
   .btn {
@@ -573,12 +557,23 @@ label {
 table {
   width: 100%; /* Ширина таблицы */
   border-collapse: collapse; /* Убираем двойные границы */
+  margin-top: 20px; /* Отступ сверху */
 }
 
 th, td {
   border: 1px solid #ccc; /* Границы ячеек */
   padding: 10px; /* Отступы внутри ячеек */
   text-align: left; /* Выравнивание текста */
+  color: #000; /* Цвет текста ячеек - черный */
+}
+
+th {
+  background-color: #f1f1f1; /* Фон для заголовков таблицы */
+  font-weight: 700; /* Жирный шрифт для заголовков */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #f9f9f9; /* Чередующиеся цвета строк */
 }
 
 .scrollable-text {
@@ -591,11 +586,21 @@ th, td {
   font-weight: bold; /* Жирный шрифт для выделения */
 }
 
-.sort-icon {
-  cursor: pointer;
-  margin-left: 5px;
-  font-size: 0.8em; /* Уменьшаем размер иконок */
+.message-container {
+  position: absolute; /* Позиционируем контейнер абсолютно */
+  top: 75px; /* Устанавливаем расстояние от верхней части страницы */
+  left: 50%; /* Центрируем по горизонтали */
+  transform: translateX(-50%); /* Центрирование по горизонтали */
+  z-index: 1050; /* Устанавливаем z-index выше остальных элементов, если необходимо */
+  width: 100%; /* Ширина контейнера */
+  pointer-events: none; /* Игнорируем события мыши */
 }
+
+.alert {
+  pointer-events: auto; /* Включаем события мыши для самих сообщений */
+}
+
+
 
 
 
