@@ -23,6 +23,7 @@
             <input type="text" id="Role" name="Role" class="form-control" value="{{ user.Role }}" required>
         </div>
         <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{{ url_for('database', table='users') }}" class="btn btn-secondary">Отмена</a>
     </form>
 </div>
 {% endblock %}

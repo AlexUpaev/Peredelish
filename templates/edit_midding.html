@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование пропавшего{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактирование данных о пропавшем: {{ midding.Name }} {{ midding.Surname }}</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="Name">Имя:</label>
+            <input type="text" id="Name" name="Name" class="form-control" value="{{ midding.Name }}" required>
+        </div>
+        <div class="form-group">
+            <label for="Surname">Фамилия:</label>
+            <input type="text" id="Surname" name="Surname" class="form-control" value="{{ midding.Surname }}" required>
+        </div>
+        <div class="form-group">
+            <label for="Patronymic">Отчество:</label>
+            <input type="text" id="Patronymic" name="Patronymic" class="form-control" value="{{ midding.Patronymic }}">
+        </div>
+        <div class="form-group">
+            <label for="DataOfBirth">Дата рождения:</label>
+            <input type="date" id="DataOfBirth" name="DataOfBirth" class="form-control" value="{{ midding.DataOfBirth.strftime('%Y-%m-%d') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="Gender">Пол:</label>
+            <select id="Gender" name="Gender" class="form-control">
+                <option value="Мужчина" {% if midding.Gender == 'Мужчина' %}selected{% endif %}>Мужчина</option>
+                <option value="Женщина" {% if midding.Gender == 'Женщина' %}selected{% endif %}>Женщина</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="Description">Описание:</label>
+            <textarea id="Description" name="Description" class="form-control">{{ midding.Description }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="DataOfLastAppearance">Дата последнего появления:</label>
+            <input type="date" id="DataOfLastAppearance" name="DataOfLastAppearance" class="form-control" value="{{ midding.DataOfLastAppearance.strftime('%Y-%m-%d') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="PlaceOfLastAppearance">Место последнего появления:</label>
+            <input type="text" id="PlaceOfLastAppearance" name="PlaceOfLastAppearance" class="form-control" value="{{ midding.PlaceOfLastAppearance }}" required>
+        </div>
+        <div class="form-group">
+            <label for="Status">Статус:</label>
+            <select id="Status" name="Status" class="form-control">
+                <option value="Никто не ищет" {% if midding.Status == "Никто не ищет" %}selected{% endif %}>Никто не ищет</option>
+                <option value="В поиске" {% if midding.Status == "В поиске" %}selected{% endif %}>В поиске</option>
+                <option value="Обнаружен" {% if midding.Status == "Обнаружен" %}selected{% endif %}>Обнаружен</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{{ url_for('database', table='middings') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

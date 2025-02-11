@@ -405,12 +405,22 @@ def message(midding_id):
     return render_template('message.html', midding_id=midding_id)
 
 # Функции для извлечения данных из базы данных
-def get_users_data():
-    return Us_user.query.all()
+def get_users_data(sort_column='Surname', sort_order='asc'):
+    query = db.session.query(Us_user)  # Предполагаем, что у вас есть модель Us_user
+
+    # Убедитесь, что имя колонки имеет правильный регистр
+    if sort_column.lower() == 'surname':
+        sort_column = 'Surname'  # Заменяем на 'Surname' с заглавной буквы
+    
+    if sort_order == 'asc':
+        query = query.order_by(getattr(Us_user, sort_column).asc())
+    else:
+        query = query.order_by(getattr(Us_user, sort_column).desc())
+    
+    return query.all()
 
 def get_volunteers_data():
     return db.session.query(Volunteer, Us_user).join(Us_user, Volunteer.user_id == Us_user.id).all()
-
 
 def get_middings_data():
     return Midding.query.all()
@@ -422,7 +432,11 @@ def get_applications_data():
     all()
 
 def get_messages_data():
-    return M_Message.query.all()
+    return db.session.query(M_Message, Volunteer, Us_user).\
+        join(Volunteer, M_Message.volunteer_id == Volunteer.id).\
+        join(Us_user, M_Message.user_id == Us_user.id).\
+        all()
+
 
 def get_poisk_data():
     return db.session.query(Poisk, Midding, Volunteer).\
@@ -441,15 +455,17 @@ def get_user_counts():
 @login_required
 def database():
     table_name = request.args.get('table', 'users')
-    search_query = request.args.get('search', '')  # Получаем поисковый запрос
+    search_query = request.args.get('search', '')
+    sort_column = request.args.get('sort_column', 'Surname')  # По умолчанию сортируем по фамилии
+    sort_order = request.args.get('sort_order', 'asc')  # По умолчанию по возрастанию
     allowed_tables = ['users', 'volunteers', 'middings', 'applications', 'messages', 'poisk', 'user_count']
     
     if table_name not in allowed_tables:
         table_name = 'users'
 
-    # Получаем данные из базы данных
+    # Получаем данные из базы данных с сортировкой
     data = {
-        'users': get_users_data(),
+        'users': get_users_data(sort_column, sort_order),
         'volunteers': get_volunteers_data(),
         'middings': get_middings_data(),
         'applications': get_applications_data(),
@@ -529,6 +545,79 @@ def edit_user(user_id):
             flash(f'Ошибка при обновлении данных: {str(e)}', 'danger')
 
     return render_template('edit_user.html', user=user)  # Отображаем форму редактирования
+
+@app.route("/edit_volunteer/<int:volunteer_id>", methods=['GET', 'POST'])
+@login_required
+def edit_volunteer(volunteer_id):
+    volunteer = Volunteer.query.get_or_404(volunteer_id)  # Получаем волонтера по ID
+
+    if request.method == 'POST':
+        # Обновляем данные волонтера
+        volunteer.Experience = request.form.get('Experience')
+        volunteer.ContactInformation = request.form.get('ContactInformation')
+        volunteer.Interactions = request.form.get('Interactions') == 'on'  # Если checkbox
+
+        try:
+            db.session.commit()  # Сохраняем изменения
+            flash('Данные волонтера успешно обновлены!', 'success')
+            return redirect(url_for('database'))  # Перенаправление на страницу базы данных
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении данных: {str(e)}', 'danger')
+
+    return render_template('edit_volunteer.html', volunteer=volunteer)  # Отображаем форму редактирования
+
+@app.route("/edit_midding/<int:midding_id>", methods=['GET', 'POST'])
+@login_required
+def edit_midding(midding_id):
+    midding = Midding.query.get_or_404(midding_id)  # Получаем пропавшего по ID
+
+    if request.method == 'POST':
+        try:
+            # Обновляем данные о пропавшем
+            midding.Name = request.form.get('Name')
+            midding.Surname = request.form.get('Surname')
+            midding.Patronymic = request.form.get('Patronymic')
+            midding.DataOfBirth = datetime.strptime(request.form.get('DataOfBirth'), '%Y-%m-%d')  # Преобразуем строку в объект date
+            midding.Gender = request.form.get('Gender')
+            midding.Description = request.form.get('Description')
+            midding.DataOfLastAppearance = datetime.strptime(request.form.get('DataOfLastAppearance'), '%Y-%m-%d')  # Преобразуем строку в объект date
+            midding.PlaceOfLastAppearance = request.form.get('PlaceOfLastAppearance')
+            midding.Status = request.form.get('Status')
+
+            db.session.commit()  # Сохраняем изменения
+            flash('Данные о пропавшем успешно обновлены!', 'success')
+            return redirect(url_for('database', table='users'))  # Перенаправление на страницу базы данных
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении данных: {str(e)}', 'danger')
+
+    return render_template('edit_midding.html', midding=midding)  # Отображаем форму редактирования
+
+@app.route("/edit_message/<int:message_id>", methods=['GET', 'POST'])
+@login_required
+def edit_message(message_id):
+    message = M_Message.query.get_or_404(message_id)  # Получаем сообщение по ID
+
+    if request.method == 'POST':
+        try:
+            # Обновляем данные сообщения
+            message.Text_Message = request.form.get('text_message')
+            message.DataOfDispatch = datetime.strptime(request.form.get('date_of_dispatch'), '%Y-%m-%d')  # Преобразуем строку в объект date
+            message.TimeOfDispatch = datetime.strptime(request.form.get('time_of_dispatch'), '%H:%M').time()  # Преобразуем строку в объект time
+            message.FromWhom = request.form.get('author')  # Обновляем отправителя
+            message.Whom = request.form.get('recipient')  # Обновляем получателя
+
+            db.session.commit()  # Сохраняем изменения
+            flash('Сообщение успешно обновлено!', 'success')
+            return redirect(url_for('database', table_name='messages'))  # Перенаправление на страницу базы данных
+        
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при обновлении сообщения: {str(e)}', 'danger')
+
+    return render_template('edit_message.html', message=message)  # Отображаем форму редактирования
 
 @app.after_request
 def redirect_to_signin(response):

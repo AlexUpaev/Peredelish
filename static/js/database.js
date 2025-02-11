@@ -30,3 +30,11 @@ function highlightMatches(query) {
         }
     }
 }
+
+function sortTable(column, order) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('sort_column', column === 'surname' ? 'Surname' : column); // Заменяем 'surname' на 'Surname'
+    urlParams.set('sort_order', order);
+    window.location.search = urlParams.toString();
+}
+

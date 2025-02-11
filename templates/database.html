@@ -31,7 +31,11 @@
                 <tr>
                     {% if table_name == 'users' %}
                         <th>ID</th>
-                        <th>Фамилия</th>
+                        <th>
+                            Фамилия 
+                            <span class="sort-icon" onclick="sortTable('surname', 'asc')">▲</span>
+                            <span class="sort-icon" onclick="sortTable('surname', 'desc')">▼</span>
+                        </th>
                         <th>Имя</th>
                         <th>Email</th>
                         <th>Роль</th>
@@ -68,11 +72,10 @@
                         <th>ФИО пропавшего</th>
                         <th>ID пользователя</th>
                         <th>ID пропавшего</th>
-                        {% if current_user.Role.lower() == 'администратор' %}
-                            <th>Действия</th>
-                        {% endif %}
                     {% elif table_name == 'messages' %}
                         <th>ID</th>
+                        <th>Фамилия имя отправителя</th>
+                        <th>Фамилия имя получателя</th>
                         <th>Сообщение</th>
                         <th>Дата отправки</th>
                         <th>Время отправки</th>
@@ -89,9 +92,6 @@
                         <th>ФИО пропавшего</th>
                         <th>ID волонтера</th>
                         <th>ID пропавшего</th>
-                        {% if current_user.Role.lower() == 'администратор' %}
-                            <th>Действия</th>
-                        {% endif %}
                     {% elif table_name == 'user_count' %}
                         <th>Роль</th>
                         <th>Количество</th>
@@ -115,15 +115,15 @@
                             <td>{{ item.N_name }}</td>
                             <td>{{ item.Email }}</td>
                             <td>{{ item.Role }}</td>
-                            <td>
-                                {% if current_user.Role.lower() == 'администратор' %}
+                            {% if current_user.Role.lower() == 'администратор' %}
+                                <td>
                                     <a href="{{ url_for('edit_user', user_id=item.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
                                     <form method="POST" action="{{ url_for('delete_data', table=table_name, id=item.id) }}" style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
                                     </form>
-                                {% endif %}
-                            </td>
-                            {% elif table_name == 'volunteers' %}
+                                </td>
+                            {% endif %}
+                        {% elif table_name == 'volunteers' %}
                             <td>{{ item.Volunteer.id }}</td>
                             <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
                             <td>{{ item.Volunteer.Experience }}</td>
@@ -131,7 +131,9 @@
                             <td>{{ item.Volunteer.Interactions }}</td>
                             <td>{{ item.Volunteer.user_id }}</td>
                             {% if current_user.Role.lower() == 'администратор' %}
-
+                                <td>
+                                    <a href="{{ url_for('edit_volunteer', volunteer_id=item.Volunteer.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                                </td>
                             {% endif %}
                         {% elif table_name == 'middings' %}
                             <td>{{ item.id }}</td>
@@ -146,6 +148,7 @@
                             <td>{{ item.Status }}</td>
                             {% if current_user.Role.lower() == 'администратор' %}
                                 <td>
+                                    <a href="{{ url_for('edit_midding', midding_id=item.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
                                     <form method="POST" action="{{ url_for('delete_data', table=table_name, id=item.id) }}" style="display:inline;">
                                         <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
                                     </form>
@@ -157,18 +160,21 @@
                             <td>{{ item.Midding.Surname }} {{ item.Midding.Name }} {{ item.Midding.Patronymic }}</td>
                             <td>{{ item.Application.user_id }}</td>
                             <td>{{ item.Application.midding_id }}</td>
-                            {% if current_user.Role.lower() == 'администратор' %}
-                            {% endif %}
                         {% elif table_name == 'messages' %}
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.Text_Message }}</td>
-                            <td>{{ item.DataOfDispatch }}</td>
-                            <td>{{ item.TimeOfDispatch }}</td>
-                            <td>{{ item.FromWhom }}</td>
-                            <td>{{ item.Whom }}</td>
-                            <td>{{ item.volunteer_id }}</td>
-                            <td>{{ item.user_id }}</td>
+                            <td>{{ item.M_Message.id }}</td>
+                            <td>{{ item.Volunteer.us_user.Surname }} {{ item.Volunteer.us_user.N_name }}</td>
+                            <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
+                            <td>{{ item.M_Message.Text_Message }}</td>
+                            <td>{{ item.M_Message.DataOfDispatch }}</td>
+                            <td>{{ item.M_Message.TimeOfDispatch }}</td>
+                            <td>{{ item.M_Message.FromWhom }}</td>
+                            <td>{{ item.M_Message.Whom }}</td>
+                            <td>{{ item.M_Message.volunteer_id }}</td>
+                            <td>{{ item.M_Message.user_id }}</td>
                             {% if current_user.Role.lower() == 'администратор' %}
+                                <td>
+                                    <a href="{{ url_for('edit_message', message_id=item[0].id) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                                </td>
                             {% endif %}
                         {% elif table_name == 'poisk' %}
                             <td>{{ item[0].id }}</td>  <!-- Poisk -->
@@ -176,8 +182,6 @@
                             <td>{{ item[1].Surname }} {{ item[1].Name }} {{ item[1].Patronymic }}</td>  <!-- Midding -->
                             <td>{{ item[0].volunteer_id }}</td>
                             <td>{{ item[0].midding_id }}</td>
-                            {% if current_user.Role.lower() == 'администратор' %}
-                            {% endif %}
                         {% endif %}
                         </tr>
                     {% endfor %}

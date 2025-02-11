@@ -591,6 +591,11 @@ th, td {
   font-weight: bold; /* Жирный шрифт для выделения */
 }
 
+.sort-icon {
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 0.8em; /* Уменьшаем размер иконок */
+}
 
 
 

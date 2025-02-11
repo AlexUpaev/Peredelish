@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование сообщения{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактирование сообщения</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="text_message">Сообщение:</label>
+            <textarea id="text_message" name="text_message" class="form-control" rows="5" required>{{ message.Text_Message }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="date_of_dispatch">Дата отправки:</label>
+            <input type="date" id="date_of_dispatch" name="date_of_dispatch" class="form-control" value="{{ message.DataOfDispatch.strftime('%Y-%m-%d') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="time_of_dispatch">Время отправки:</label>
+            <input type="time" id="time_of_dispatch" name="time_of_dispatch" class="form-control" value="{{ message.TimeOfDispatch.strftime('%H:%M') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="author">От кого:</label>
+            <input type="text" id="author" name="author" class="form-control" value="{{ message.FromWhom }}" required>
+        </div>
+        <div class="form-group">
+            <label for="recipient">Кому:</label>
+            <input type="text" id="recipient" name="recipient" class="form-control" value="{{ message.Whom }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{{ url_for('database', table_name='messages') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

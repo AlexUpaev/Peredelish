@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование волонтера{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Редактирование волонтера: {{ volunteer.us_user.N_name }} {{ volunteer.us_user.Surname }}</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="Experience">Опыт:</label>
+            <input type="text" id="Experience" name="Experience" class="form-control" value="{{ volunteer.Experience }}" required>
+        </div>
+        <div class="form-group">
+            <label for="ContactInformation">Контактная информация:</label>
+            <input type="text" id="ContactInformation" name="ContactInformation" class="form-control" value="{{ volunteer.ContactInformation }}" required>
+        </div>
+        <div class="form-group">
+            <label for="Interactions">Взаимодействия:</label>
+            <input type="checkbox" id="Interactions" name="Interactions" {% if volunteer.Interactions %}checked{% endif %}>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{{ url_for('database', table='volunteers') }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}
