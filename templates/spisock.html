@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block title %}
-Списки пропавших
+Список пропавших
 {% endblock %}
 
 {% block content %}
-<h1 style="font-size: 48px;">Списки пропавших</h1>
+<h1 style="font-size: 48px;">Список пропавших</h1>
 <h2 style="text-align: center;">Количество пропавших: {{ midding_count }}</h2>
 
 <section class="spisock_main">
@@ -17,8 +17,8 @@
                     <img class="spisokimg" src="data:image/jpeg;base64,{{ post.Photo }}" class="img-fluid rounded-start" alt="картинка">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">{{ post.Name }} {{ post.Surname }} {{ post.Patronymic }}</h5>
-                    <p class="card-text">{{ post.Description }}</p>
+                    <h5 class="card-title">{{ post.Surname }} {{ post.Name }} {{ post.Patronymic }}</h5>
+                    <p class="card-text"><small class="text-muted">Описание: {{ post.Description }}</small></p>
                     <p class="card-text"><small class="text-muted">Дата рождения: {{ '%02d.%02d.%04d' | format(post.DataOfBirth.day, post.DataOfBirth.month, post.DataOfBirth.year) }}</small></p>
                     <p class="card-text"><small class="text-muted">Пол: {{ post.Gender }}</small></p>
                     <p class="card-text"><small class="text-muted">Дата последнего появления: {{ '%02d.%02d.%04d' | format(post.DataOfLastAppearance.day, post.DataOfLastAppearance.month, post.DataOfLastAppearance.year) }}</small></p>
@@ -27,7 +27,7 @@
 
                 <div class="mb-3">
                     <label for="status" class="form-label">Статус поиска</label>
-                    {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' %}
+                    {% if current_user.is_authenticated and current_user.Role.lower() == 'волонтёр' and current_user.volunteers and current_user.volunteers[0].Interactions %}
                         {% set Interactions = True %}
                         <!-- Форма для изменения статуса -->
                         <form action="{{ url_for('update_status', post_id=post.id) }}" method="POST">

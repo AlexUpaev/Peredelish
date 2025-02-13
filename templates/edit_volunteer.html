@@ -16,7 +16,10 @@
         </div>
         <div class="form-group">
             <label for="Interactions">Взаимодействия:</label>
-            <input type="checkbox" id="Interactions" name="Interactions" {% if volunteer.Interactions %}checked{% endif %}>
+            <select id="Interactions" name="Interactions" class="form-select">
+                <option value="True" {% if volunteer.Interactions %}selected{% endif %}>Да</option>
+                <option value="False" {% if not volunteer.Interactions %}selected{% endif %}>Нет</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-primary">Сохранить изменения</button>
         <a href="{{ url_for('database', table='volunteers') }}" class="btn btn-secondary">Отмена</a>

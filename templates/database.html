@@ -48,7 +48,6 @@
                         <th>Опыт</th>
                         <th>Контактный номер</th>
                         <th>Возможность взаимодействия</th>
-                        <th>ID пользователя</th>
                         {% if current_user.Role.lower() == 'администратор' %}
                             <th>Действия</th>
                         {% endif %}
@@ -70,8 +69,6 @@
                         <th>ID</th>
                         <th>Фамилия имя отправителя</th>
                         <th>ФИО пропавшего</th>
-                        <th>ID пользователя</th>
-                        <th>ID пропавшего</th>
                     {% elif table_name == 'messages' %}
                         <th>ID</th>
                         <th>Фамилия имя отправителя</th>
@@ -81,8 +78,6 @@
                         <th>Время отправки</th>
                         <th>От кого</th>
                         <th>Кому</th>
-                        <th>ID волонтера</th>
-                        <th>ID пользователя</th>
                         {% if current_user.Role.lower() == 'администратор' %}
                             <th>Действия</th>
                         {% endif %}
@@ -90,8 +85,6 @@
                         <th>ID</th>
                         <th>Фамилия имя волонтёра</th>
                         <th>ФИО пропавшего</th>
-                        <th>ID волонтера</th>
-                        <th>ID пропавшего</th>
                     {% elif table_name == 'user_count' %}
                         <th>Роль</th>
                         <th>Количество</th>
@@ -129,7 +122,6 @@
                             <td>{{ item.Volunteer.Experience }}</td>
                             <td>{{ item.Volunteer.ContactInformation }}</td>
                             <td>{{ item.Volunteer.Interactions }}</td>
-                            <td>{{ item.Volunteer.user_id }}</td>
                             {% if current_user.Role.lower() == 'администратор' %}
                                 <td>
                                     <a href="{{ url_for('edit_volunteer', volunteer_id=item.Volunteer.id) }}" class="btn btn-warning btn-sm">Редактировать</a>
@@ -158,8 +150,6 @@
                             <td>{{ item.Application.id }}</td>
                             <td>{{ item.Us_user.Surname }} {{ item.Us_user.N_name }}</td>
                             <td>{{ item.Midding.Surname }} {{ item.Midding.Name }} {{ item.Midding.Patronymic }}</td>
-                            <td>{{ item.Application.user_id }}</td>
-                            <td>{{ item.Application.midding_id }}</td>
                         {% elif table_name == 'messages' %}
                             <td>{{ item.M_Message.id }}</td>
                             <td>{{ item.Volunteer.us_user.Surname }} {{ item.Volunteer.us_user.N_name }}</td>
@@ -169,19 +159,15 @@
                             <td>{{ item.M_Message.TimeOfDispatch }}</td>
                             <td>{{ item.M_Message.FromWhom }}</td>
                             <td>{{ item.M_Message.Whom }}</td>
-                            <td>{{ item.M_Message.volunteer_id }}</td>
-                            <td>{{ item.M_Message.user_id }}</td>
                             {% if current_user.Role.lower() == 'администратор' %}
                                 <td>
                                     <a href="{{ url_for('edit_message', message_id=item[0].id) }}" class="btn btn-warning btn-sm">Редактировать</a>
                                 </td>
                             {% endif %}
                         {% elif table_name == 'poisk' %}
-                            <td>{{ item[0].id }}</td>  <!-- Poisk -->
+                            <td>{{ item[0].id }}</td>  
                             <td>{{ item[2].us_user.Surname }} {{ item[2].us_user.N_name }}</td>
-                            <td>{{ item[1].Surname }} {{ item[1].Name }} {{ item[1].Patronymic }}</td>  <!-- Midding -->
-                            <td>{{ item[0].volunteer_id }}</td>
-                            <td>{{ item[0].midding_id }}</td>
+                            <td>{{ item[1].Surname }} {{ item[1].Name }} {{ item[1].Patronymic }}</td>  
                         {% endif %}
                         </tr>
                     {% endfor %}
